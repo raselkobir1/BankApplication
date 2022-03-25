@@ -17,13 +17,19 @@ namespace BankApplication.Web.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Account>()
-           .HasOne(p => p.ApplicationUser)
-           .WithMany()
-           .HasForeignKey(m=> m.ApplicationUserId);
+            modelBuilder.Entity<BankAccount>()
+                .HasOne(p => p.ApplicationUser)
+                .WithMany()
+                .HasForeignKey(m=> m.ApplicationUserId);
+
+            modelBuilder.Entity<Balance>()
+                .HasOne(b => b.BankAccount)
+                .WithMany()
+                .HasForeignKey(b => b.BankAccountId);
         }
 
         public DbSet<Bank> Banks { get; set; }
-        public DbSet<Account>  Accounts { get; set; }
+        public DbSet<BankAccount> BankAccount { get; set; }
+        public DbSet<Balance>  Balances { get; set; }  
     }
 }

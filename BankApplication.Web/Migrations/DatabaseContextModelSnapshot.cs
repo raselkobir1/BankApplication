@@ -19,41 +19,6 @@ namespace BankApplication.Web.Migrations
                 .HasAnnotation("ProductVersion", "5.0.9")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("BankApplication.Web.Models.Account", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AccountNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("AccountStatus")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("ApplicationUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("BankId")
-                        .HasColumnType("bigint");
-
-                    b.Property<double>("DepositeAmount")
-                        .HasColumnType("float");
-
-                    b.Property<double>("OpeningBalance")
-                        .HasColumnType("float");
-
-                    b.Property<double>("WidthwrounAmount")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("Accounts");
-                });
-
             modelBuilder.Entity("BankApplication.Web.Models.ApplicationUser", b =>
                 {
                     b.Property<long>("Id")
@@ -64,7 +29,7 @@ namespace BankApplication.Web.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<long>("BankId")
+                    b.Property<long?>("BankId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -77,9 +42,6 @@ namespace BankApplication.Web.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -127,6 +89,35 @@ namespace BankApplication.Web.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("BankApplication.Web.Models.Balance", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long>("BankAccountId")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("DepositeAmount")
+                        .HasColumnType("float");
+
+                    b.Property<double>("TotalAmount")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime?>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("WidthrownAmount")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BankAccountId");
+
+                    b.ToTable("Balances");
+                });
+
             modelBuilder.Entity("BankApplication.Web.Models.Bank", b =>
                 {
                     b.Property<int>("Id")
@@ -146,6 +137,35 @@ namespace BankApplication.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Banks");
+                });
+
+            modelBuilder.Entity("BankApplication.Web.Models.BankAccount", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AccountNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("AccountStatus")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("AccountType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ApplicationUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("OpeningBalance")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("BankAccount");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>
@@ -278,7 +298,18 @@ namespace BankApplication.Web.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("BankApplication.Web.Models.Account", b =>
+            modelBuilder.Entity("BankApplication.Web.Models.Balance", b =>
+                {
+                    b.HasOne("BankApplication.Web.Models.BankAccount", "BankAccount")
+                        .WithMany()
+                        .HasForeignKey("BankAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BankAccount");
+                });
+
+            modelBuilder.Entity("BankApplication.Web.Models.BankAccount", b =>
                 {
                     b.HasOne("BankApplication.Web.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BankApplication.Web.Migrations
 {
-    public partial class initialdbcreate : Migration
+    public partial class Initialdbcreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,8 +28,7 @@ namespace BankApplication.Web.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BankId = table.Column<long>(type: "bigint", nullable: false),
+                    BankId = table.Column<long>(type: "bigint", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -82,31 +81,6 @@ namespace BankApplication.Web.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Accounts",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BankId = table.Column<long>(type: "bigint", nullable: false),
-                    ApplicationUserId = table.Column<long>(type: "bigint", nullable: false),
-                    AccountNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OpeningBalance = table.Column<double>(type: "float", nullable: false),
-                    DepositeAmount = table.Column<double>(type: "float", nullable: false),
-                    WidthwrounAmount = table.Column<double>(type: "float", nullable: false),
-                    AccountStatus = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Accounts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Accounts_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
-                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -196,10 +170,51 @@ namespace BankApplication.Web.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Accounts_ApplicationUserId",
-                table: "Accounts",
-                column: "ApplicationUserId");
+            migrationBuilder.CreateTable(
+                name: "BankAccount",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ApplicationUserId = table.Column<long>(type: "bigint", nullable: false),
+                    AccountNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OpeningBalance = table.Column<double>(type: "float", nullable: false),
+                    AccountStatus = table.Column<bool>(type: "bit", nullable: false),
+                    AccountType = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BankAccount", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BankAccount_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Balances",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BankAccountId = table.Column<long>(type: "bigint", nullable: false),
+                    DepositeAmount = table.Column<double>(type: "float", nullable: false),
+                    WidthrownAmount = table.Column<double>(type: "float", nullable: false),
+                    TotalAmount = table.Column<double>(type: "float", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Balances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Balances_BankAccount_BankAccountId",
+                        column: x => x.BankAccountId,
+                        principalTable: "BankAccount",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -239,13 +254,20 @@ namespace BankApplication.Web.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Balances_BankAccountId",
+                table: "Balances",
+                column: "BankAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BankAccount_ApplicationUserId",
+                table: "BankAccount",
+                column: "ApplicationUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Accounts");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -262,10 +284,16 @@ namespace BankApplication.Web.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Balances");
+
+            migrationBuilder.DropTable(
                 name: "Banks");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "BankAccount");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
