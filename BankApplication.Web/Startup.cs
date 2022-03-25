@@ -1,7 +1,10 @@
+using BankApplication.Web.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +29,36 @@ namespace BankApplication.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string connectionString = Configuration.GetConnectionString("sqlConnection");
+
+            services.AddDbContext<DatabaseContext>(optionsAction =>
+            {
+                optionsAction.UseSqlServer(connectionString, Options =>
+                {
+                    Options.MigrationsAssembly("BankApplication.Web");
+                });
+            });
+
+            services.AddIdentity<ApplicationUser, IdentityRole<long>>()
+                .AddEntityFrameworkStores<DatabaseContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddHttpContextAccessor();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Default Password settings.
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Default User settings.
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                //options.User.RequireUniqueEmail = true;
+            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
