@@ -1,7 +1,9 @@
-﻿using BankApplication.Web.Models;
+﻿using BankApplication.Web.ContractModels;
+using BankApplication.Web.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,8 +26,8 @@ namespace BankApplication.Web.Controllers
         }
         //admin acccount create
         [HttpPost]
-        [Route("bank-create")]
-        public async Task<IActionResult> CreateAccount(string email, string fullname, string password) 
+        [Route("register")]
+        public async Task<IActionResult> RegisterAccount(string email, string password)  
         {
             try
             {
@@ -49,21 +51,37 @@ namespace BankApplication.Web.Controllers
 
         // customer and account of custoerm create for bank 
         [HttpPost]
-        [Route("customer-create")]
-        public async Task <IActionResult> BankCustomerAccountCreate([FromBody] BankAccount account)  
+        [Route("bankaccount-create")]
+        public async Task <IActionResult> CustomerBankAccountCreate([FromBody] BankAccountDto bankAccountDto)   
         {
             try
             {
-                ApplicationUser user = await _UserManager.GetUserAsync(HttpContext.User);
-
-                _DatabaseContext.Add(account);
-                _DatabaseContext.SaveChanges();
+                ApplicationUser user = null;
+                string role = "";
+                if (HttpContext.User.Identity.IsAuthenticated)
+                {
+                    user = await _UserManager.GetUserAsync(HttpContext.User);
+                    //role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
+                    var bankAccount = new BankAccount()
+                    {
+                         Id = bankAccountDto.Id,
+                         ApplicationUserId = user.Id,
+                         AccountNo = bankAccountDto.AccountNo,
+                         AccountStatus = bankAccountDto.AccountStatus,
+                         AccountType = bankAccountDto.AccountType,
+                         OpeningBalance = bankAccountDto.OpeningBalance,
+                              
+                    };
+                    _DatabaseContext.Add(bankAccount);
+                    _DatabaseContext.SaveChanges();
+                }
+               
             }
             catch (System.Exception e)
             {
                 throw;
             }
-            return Ok();
+            return Ok("Bank account create successfully");
         }
 
         [HttpPost]
@@ -72,9 +90,67 @@ namespace BankApplication.Web.Controllers
         {
             var result = await _SignInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
             ApplicationUser user = await _UserManager.FindByEmailAsync(email);
-            return Ok( new { Id= user.Id, FullName = user.UserName});
+            return Ok( new { AppUserId = user.Id});  
         }
 
+        [HttpPost]
+        [Route("transaction")]
+        public async Task<IActionResult> TransactionBalance([FromBody] BalanceDto balanceDto) 
+        {
+            try
+            {
+                ApplicationUser user = null;
+                user = await _UserManager.GetUserAsync(HttpContext.User);
+                var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id).ToList();
+
+                var currentUserAccount = accounts.FirstOrDefault(a => a.AccountNo == balanceDto.AccountNo);
+               
+
+                if (balanceDto.TransactionType == "Deposite")
+                {
+                    var currentBalance = currentUserAccount.OpeningBalance += balanceDto.DepositeAmount;
+                    var balance = new Balance()
+                    {
+                         BankAccountId = currentUserAccount.Id, 
+                         DepositeAmount = balanceDto.DepositeAmount,
+                         Id = 0,
+                         TotalAmount = currentBalance,
+                         TransactionDate =  DateTime.UtcNow,
+                         AccountNo = balanceDto.AccountNo,
+                         TransactionType = "Deposite"
+                    };
+                    _DatabaseContext.Add(balance);
+                    _DatabaseContext.SaveChanges();
+                }
+                else
+                {
+                    // if opening balance <= widthdrown amount = return please deposite your account first, you have not enough balance for widthdrown.
+                    //var currentBalance = currentUserAccount.OpeningBalance -= balanceDto.WidthrownAmount;
+                    var accBalance = _DatabaseContext.Balances.FirstOrDefault(b => b.BankAccountId == currentUserAccount.Id);   
+                    var totalBalance = accBalance.TotalAmount - balanceDto.WidthrownAmount;
+
+                    var balance = new Balance()
+                    {
+                        BankAccountId = currentUserAccount.Id,
+                        WidthrownAmount = balanceDto.WidthrownAmount,
+                        Id = 0,
+                        TotalAmount = totalBalance, 
+                        TransactionDate = DateTime.UtcNow,
+                        AccountNo = balanceDto.AccountNo,
+                        TransactionType = "Widthdrown"
+                    };
+                    _DatabaseContext.Add(balance);
+                    _DatabaseContext.SaveChanges();
+                }
+                return Ok();
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+            
+        }
 
         [HttpGet("app-context")]
         public async Task<IActionResult> GetApplicationContext()

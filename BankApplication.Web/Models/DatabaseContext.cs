@@ -29,7 +29,7 @@ namespace BankApplication.Web.Models
         }
 
         public DbSet<Bank> Banks { get; set; }
-        public DbSet<BankAccount> BankAccount { get; set; }
+        public DbSet<BankAccount> BankAccounts { get; set; }
         public DbSet<Balance>  Balances { get; set; }  
     }
 }
