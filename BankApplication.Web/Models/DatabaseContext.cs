@@ -1,5 +1,4 @@
-﻿using BankApplication.Web.Configuration;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +16,6 @@ namespace BankApplication.Web.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new RoleConfiguration());
 
             modelBuilder.Entity<BankAccount>()
                 .HasOne(p => p.ApplicationUser)

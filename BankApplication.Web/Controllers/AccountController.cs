@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,12 +19,15 @@ namespace BankApplication.Web.Controllers
         private readonly SignInManager<ApplicationUser> _SignInManager;
         private UserManager<ApplicationUser> _UserManager { get; set; }
         private readonly IHttpContextAccessor _HttpContextAccessor;
-        public AccountController(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager)
+        private RoleManager<IdentityRole<long>> _RoleManager { get; set; }
+
+        public AccountController(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager)
         {
             _DatabaseContext = databaseContext;
             _SignInManager = signInManager;
             _HttpContextAccessor = httpContextAccessor; 
             _UserManager = userManager;
+            _RoleManager = roleManager;
         }
         //admin acccount create
         [HttpPost]
@@ -32,17 +36,14 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                var applicationUser = new ApplicationUser()
-                {
-                    Email = email,
-                    UserName = email,
-                    BankId = 1,
-                };
+                var applicationUser = new ApplicationUser() { Email = email, UserName = email, BankId = 1, };
                
                 var result = await _UserManager.CreateAsync(applicationUser, password);
                 if (result.Succeeded)
                 {
-                    var role = "Customer";
+                    await RoleCreateIfNotExists();
+                    //var role = "Customer";
+                    var role = "Administrator";
                     _UserManager.AddToRoleAsync(applicationUser, role).Wait();
                 }
                 _DatabaseContext.SaveChanges();
@@ -63,17 +64,19 @@ namespace BankApplication.Web.Controllers
             try
             {
                 ApplicationUser user = null;
-                string role = "";
                 if (HttpContext.User.Identity.IsAuthenticated)
                 {
                     user = await _UserManager.GetUserAsync(HttpContext.User);
                     //role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
+                    Random rnd = new Random();
+                    int accNumber = rnd.Next(100, 201);  
+
                     var bankAccount = new BankAccount()
                     {
                          Id = bankAccountDto.Id,
                          ApplicationUserId = user.Id,
-                         AccountNo = bankAccountDto.AccountNo,
-                         AccountStatus = bankAccountDto.AccountStatus,
+                         AccountNo = "Acc-"+accNumber.ToString(),
+                         AccountStatus = false,
                          AccountType = bankAccountDto.AccountType,
                          OpeningBalance = bankAccountDto.OpeningBalance,
                               
@@ -159,8 +162,8 @@ namespace BankApplication.Web.Controllers
         }
 
         [HttpGet("get-accounts")]
-        [Authorize(Roles ="Admin")]
-        public async Task<IActionResult> CustomerBankAccounts()
+        [Authorize(Roles = "Administrator")]
+        public IActionResult CustomerBankAccounts()
         {
             try
             {
@@ -174,6 +177,20 @@ namespace BankApplication.Web.Controllers
            
         }
 
+        [HttpPut("active-account/{accountid})")]
+        [Authorize(Roles = "Administrator")]
+        public IActionResult ActiveCustomerAccount(long accountid)
+        {
+            var accounts = _DatabaseContext.BankAccounts;
+            var account = accounts.Where(a => a.Id == accountid).FirstOrDefault();
+            account.AccountStatus = true;
+
+            _DatabaseContext.Update(account);
+            _DatabaseContext.SaveChanges();
+
+            return Ok("Customer account approved and Activated");
+        }
+
         [HttpGet("app-context")]
         public async Task<IActionResult> GetApplicationContext()
         {
@@ -185,6 +202,21 @@ namespace BankApplication.Web.Controllers
                 role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
             }
             return Ok(new { user = user, role = role });
+        }
+
+
+        private async Task RoleCreateIfNotExists()  
+        {
+            var adminRole = "Administrator";
+            if (!await _RoleManager.RoleExistsAsync(adminRole))
+            {
+                var res = await _RoleManager.CreateAsync(new IdentityRole<long>(adminRole));
+            }
+            var roleName = "Customer";
+            if (!await _RoleManager.RoleExistsAsync(roleName))
+            {
+                var res = await _RoleManager.CreateAsync(new IdentityRole<long>(roleName));
+            }
         }
     }
 }
