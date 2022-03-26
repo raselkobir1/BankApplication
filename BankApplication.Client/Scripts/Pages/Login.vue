@@ -12,6 +12,7 @@
           <div class="form-floating">
             <input
               type="email"
+              v-model="email"
               class="form-control"
               id="floatingInput"
               placeholder="name@example.com"
@@ -22,6 +23,7 @@
           <div class="form-floating">
             <input
               type="password"
+              v-model="password"
               class="form-control"
               id="floatingPassword"
               placeholder="password"
@@ -33,12 +35,46 @@
               <input type="checkbox" value="remember-me" />Remember me
             </label>
           </div>
-          <button class="w-100 btn btn-lg btn-primary" type="submit">
+          <button @click="onSignin" class="w-100 btn btn-lg btn-primary"  type="button">
             Sign in
           </button>
+          <a href="#">
+          <h6> Register your account</h6>
+          </a>
           <p class="mt-5 mb-3 text-muted">&copy; 2017-2021</p>
         </form>
       </div>
     </div>
   </div>
 </template>
+
+<script>
+//import LoginModel from "@scripts/Models/Accounts/LoginModel";
+import AccountService from "@scripts/Services/AccountServices";
+
+export default {
+  data() {
+    return {
+      email: '',
+      password: ''
+    };
+  },
+  methods: {
+    async onSignin() {
+       
+        AccountService.singin(this.email, this.password)
+          .then((response) => {
+            console.log("email and password:",this.email, this.password);
+            console.log("Response data :", response);
+            this.$router.push({ name: "admin" });
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            
+          });
+    },
+  },
+};
+</script>

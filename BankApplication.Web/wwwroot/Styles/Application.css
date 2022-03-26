@@ -10221,3 +10221,13 @@ textarea.form-control-lg {
   padding: 5px;
   background-color: #f5f5f5;
 }
+
+.page.page-admin.container, .page.page-admin.page-login {
+  height: 800px;
+}
+.page.page-admin.container .row, .page.page-admin.page-login .row {
+  height: 85vh;
+}
+.page.page-admin.container .row .sidebar, .page.page-admin.page-login .row .sidebar {
+  background-color: #f3f3fa;
+}
