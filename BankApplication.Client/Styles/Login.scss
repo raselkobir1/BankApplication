@@ -1,0 +1,11 @@
+.page-login{
+    @extend .container;
+    background-color: $theme-color;
+    form {
+        padding-top:50px;
+        .img-bs {
+            width: 60px;
+            height: auto;
+        }
+    }
+}
