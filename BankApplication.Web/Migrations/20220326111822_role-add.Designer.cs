@@ -4,14 +4,16 @@ using BankApplication.Web.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BankApplication.Web.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220326111822_role-add")]
+    partial class roleadd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,15 +197,15 @@ namespace BankApplication.Web.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1",
-                            ConcurrencyStamp = "bd1c90a6-6708-4e73-a954-fc6022aa4c2c",
+                            Id = "22c0ede2-676c-4a3d-8d0f-dad4c391afee",
+                            ConcurrencyStamp = "d13d921b-a5a4-4068-89cb-7408e9826e6a",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = "2",
-                            ConcurrencyStamp = "aba4381f-6af3-4178-9746-7eeaf40570d2",
+                            Id = "d44dde4f-b91c-4021-99b4-30fb3143bd05",
+                            ConcurrencyStamp = "516dd579-669d-4fa6-a67e-d8ef28bb9d61",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });

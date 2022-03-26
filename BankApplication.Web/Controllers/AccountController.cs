@@ -1,5 +1,6 @@
 ﻿using BankApplication.Web.ContractModels;
 using BankApplication.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -37,10 +38,15 @@ namespace BankApplication.Web.Controllers
                     UserName = email,
                     BankId = 1,
                 };
-                var role = "Admin";
+               
                 var result = await _UserManager.CreateAsync(applicationUser, password);
+                if (result.Succeeded)
+                {
+                    var role = "Customer";
+                    _UserManager.AddToRoleAsync(applicationUser, role).Wait();
+                }
                 _DatabaseContext.SaveChanges();
-                return Ok("User create successfully");
+                return Ok("User create successfully with role");
             }
             catch (System.Exception e)
             {
@@ -150,6 +156,22 @@ namespace BankApplication.Web.Controllers
                 throw;
             }
             
+        }
+
+        [HttpGet("get-accounts")]
+        [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> CustomerBankAccounts()
+        {
+            try
+            {
+                var accounts = _DatabaseContext.BankAccounts;
+                return Ok(new {accounts = accounts });
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+           
         }
 
         [HttpGet("app-context")]
