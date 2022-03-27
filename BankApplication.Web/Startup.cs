@@ -1,4 +1,6 @@
 using BankApplication.Web.Models;
+using EmailService;
+using EmailService.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -48,18 +50,21 @@ namespace BankApplication.Web
 
             services.Configure<IdentityOptions>(options =>
             {
-                // Default Password settings.
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 4;
                 options.Password.RequiredUniqueChars = 1;
-
                 // Default User settings.
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                //options.User.RequireUniqueEmail = true;
+                options.User.RequireUniqueEmail = true;
+                options.SignIn.RequireConfirmedEmail = true;
             });
+            var emailConfig = Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+            services.AddSingleton(emailConfig);
+            services.AddScoped<IEmailSender, EmailSender>();
+
             services.AddControllers();
             services.AddControllersWithViews();
             services.AddSwaggerGen(c =>

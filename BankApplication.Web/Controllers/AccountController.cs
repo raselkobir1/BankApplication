@@ -1,12 +1,16 @@
 ﻿using BankApplication.Web.ContractModels;
 using BankApplication.Web.Models;
+using EmailService;
+using EmailService.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BankApplication.Web.Controllers
@@ -20,14 +24,16 @@ namespace BankApplication.Web.Controllers
         private UserManager<ApplicationUser> _UserManager { get; set; }
         private readonly IHttpContextAccessor _HttpContextAccessor;
         private RoleManager<IdentityRole<long>> _RoleManager { get; set; }
+        private readonly IEmailSender _EmailSender; 
 
-        public AccountController(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager)
+        public AccountController(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender)
         {
             _DatabaseContext = databaseContext;
             _SignInManager = signInManager;
             _HttpContextAccessor = httpContextAccessor; 
             _UserManager = userManager;
             _RoleManager = roleManager;
+            _EmailSender = emailSender;
         }
         //admin acccount create
         [HttpPost]
@@ -41,13 +47,20 @@ namespace BankApplication.Web.Controllers
                 var result = await _UserManager.CreateAsync(applicationUser, password);
                 if (result.Succeeded)
                 {
+                    var token = await _UserManager.GenerateEmailConfirmationTokenAsync(applicationUser);
+                    token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                    var confirmationLink = $"{GetSiteBaseUrl()}/confirm-email?email={applicationUser.Email}&token={token}";
+                    var message = new Message(new string[] { applicationUser.Email }, "Registration Confirmation link", confirmationLink); 
+                    _EmailSender.SendEmail(message);
+
                     await RoleCreateIfNotExists();
-                    //var role = "Customer";
-                    var role = "Administrator";
-                    _UserManager.AddToRoleAsync(applicationUser, role).Wait();
+                    _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
+                    _DatabaseContext.SaveChanges();
+
+                    return Ok("User create successfully with role");
                 }
-                _DatabaseContext.SaveChanges();
-                return Ok("User create successfully with role");
+               
+                return Ok("Something want wrong...!!");
             }
             catch (System.Exception e)
             {
@@ -99,6 +112,10 @@ namespace BankApplication.Web.Controllers
         {
             var result = await _SignInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
             ApplicationUser user = await _UserManager.FindByEmailAsync(email);
+
+            if (!await _UserManager.IsEmailConfirmedAsync(user))
+                return Ok("Please confirm your email");
+
             return Ok( new { AppUserId = user.Id});  
         }
 
@@ -217,6 +234,12 @@ namespace BankApplication.Web.Controllers
             {
                 var res = await _RoleManager.CreateAsync(new IdentityRole<long>(roleName));
             }
+        }
+
+        private string GetSiteBaseUrl()
+        {
+            HttpRequest request = _HttpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}{request.PathBase}";
         }
     }
 }
