@@ -1,6 +1,6 @@
 <template>
 <body>
-<div class="page page-admin container">
+<div class="page page-admin container-fluid">
   <div class="row">
     <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
       <div class="position-sticky pt-3">
@@ -8,38 +8,9 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">
               <span data-feather="home"></span>
-              Dashboard
+              Admin Dashboard
             </a>
           </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              <span data-feather="users"></span>
-              Customers
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              <span data-feather="bar-chart-2"></span>
-              Reports
-            </a>
-          </li>
-        </ul>
-
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-          <span>Saved reports</span>
-          <a class="link-secondary" href="#" aria-label="Add a new report">
-            <span data-feather="plus-circle"></span>
-          </a>
-        </h6>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              <span data-feather="file-text"></span>
-              Current month
-            </a>
-          </li>
-
         </ul>
       </div>
     </nav>
@@ -49,8 +20,7 @@
         <h1 class="h2">Dashboard</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
           <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+            <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-secondary">Sign out</button>
           </div>
         </div>
       </div>
@@ -60,29 +30,29 @@
         <table class="table table-striped table-sm">
           <thead>
             <tr>
-              <th scope="col">#</th>
-              <th scope="col">Header</th>
-              <th scope="col">Header</th>
-              <th scope="col">Header</th>
-              <th scope="col">Header</th>
+              <th scope="col">SL</th>
+              <th scope="col">Account No</th>
+              <th scope="col">OP Balance</th>
+              <th scope="col">A/C Type</th>
+              <th scope="col">Status</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1,001</td>
-              <td>random</td>
-              <td>data</td>
-              <td>placeholder</td>
-              <td>text</td>
-            </tr>
-            <tr>
-              <td>1,002</td>
-              <td>placeholder</td>
-              <td>irrelevant</td>
-              <td>visual</td>
-              <td>layout</td>
-            </tr>
+            <tr v-for="(account, index) of accountList" :key="index">
+              <td>{{index}}</td>
+              <td>{{account.accountNo}}</td>
+              <td>{{account.openingBalance}}</td>
+              <td>{{account.accountType}}</td>
+              <td>{{account.accountStatus == true ? "Active":"Inactive"}}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-primary">A/C Active</button>
+                <button type="button" class="btn btn-sm btn-warning">A/C Inactive</button>
+              </td>
+
           
+            </tr>
+        
           </tbody>
         </table>
       </div>
@@ -92,6 +62,57 @@
 </body>
 </template>
 
-<style>
+<script>
+//import LoginModel from "@scripts/Models/Accounts/LoginModel";
+import AccountService from "@scripts/Services/AccountServices";
 
-</style>
+export default {
+  data() {
+    return {
+      accountList: [],
+      context: ''
+    };
+  },
+  mounted(){
+    this.getCustomerAccounts();
+    this.getApplicationContext()
+  },
+  methods: {
+    async getCustomerAccounts() {
+        AccountService.getAccounts()
+          .then((response) => {
+            this.accountList = response.data.accounts
+            console.log("Response data :", response.data.accounts);
+            //this.$router.push({ name: "admin" });
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            
+          });
+    },
+    getApplicationContext() {
+      AccountService.getApplicationContext()
+        .then((response) => {
+          this.context = response.data;
+          console.log("App context data :",this.context)
+        })
+        .catch((error) => {
+          this.serverError = error;
+        });
+      },
+    OnClickSignOut() {
+      AccountService.singOut(this.loginModel)
+        .then((response) => {
+          this.$router.push({ name: "login"});
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+     },
+
+     
+    },
+};
+</script>

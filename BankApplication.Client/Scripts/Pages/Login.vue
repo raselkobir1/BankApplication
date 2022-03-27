@@ -56,17 +56,24 @@ export default {
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
     };
+  },
+  mounted() {
+    
   },
   methods: {
     async onSignin() {
-       
         AccountService.singin(this.email, this.password)
           .then((response) => {
             console.log("email and password:",this.email, this.password);
-            console.log("Response data :", response);
-            this.$router.push({ name: "admin" });
+            console.log("Response data :", response.data);
+            if(response.data.role =="Administrator") {
+              this.$router.push({ name: "admin" });
+            }
+            else{
+              this.$router.push({ name: "customer" });
+            }
           })
           .catch((error) => {
             console.log(error);

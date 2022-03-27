@@ -74,11 +74,12 @@ namespace BankApplication.Web.Controllers
         {
             var result = await _SignInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
             ApplicationUser user = await _UserManager.FindByEmailAsync(email);
+            var role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
 
             if (!await _UserManager.IsEmailConfirmedAsync(user))
                 return Ok("Please confirm your email");
 
-            return Ok(new { AppUserId = user.Id });
+            return Ok(new { AppUserId = user.Id, role = role });
         }
 
         // customer and account of custoerm create for bank 
@@ -184,14 +185,13 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                var accounts = _DatabaseContext.BankAccounts;
+                var accounts = _DatabaseContext.BankAccounts.ToList();
                 return Ok(new {accounts = accounts });
             }
             catch (Exception e)
             {
                 throw;
             }
-           
         }
 
         [HttpPut("active-account/{accountid})")]
@@ -206,6 +206,35 @@ namespace BankApplication.Web.Controllers
             _DatabaseContext.SaveChanges();
 
             return Ok("Customer account approved and Activated");
+        }
+
+        [HttpPut("inactive-account/{accountid})")]
+        [Authorize(Roles = "Administrator")]
+        public IActionResult InactivationCustomerAccount(long accountid) 
+        {
+            var accounts = _DatabaseContext.BankAccounts.ToList();
+            var account = accounts.Where(a => a.Id == accountid).FirstOrDefault();
+            account.AccountStatus = false;
+
+            _DatabaseContext.Update(account);
+            _DatabaseContext.SaveChanges();
+
+            return Ok("Customer account Inactivated successfull");
+        }
+
+        [HttpPost]
+        [Route("signout")]
+        public async Task<IActionResult> SignOutAccount() 
+        {
+            try
+            {
+                await _SignInManager.SignOutAsync();
+                return Ok("Sign out user");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [HttpGet("app-context")]
