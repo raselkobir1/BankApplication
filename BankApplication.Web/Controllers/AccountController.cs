@@ -42,7 +42,11 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                var applicationUser = new ApplicationUser() { Email = email, UserName = email, BankId = 1, };
+                ApplicationUser applicationUser = await _UserManager.FindByEmailAsync(email);
+                if (applicationUser != null)
+                    return Ok("Already have an account for this email");
+
+                  applicationUser = new ApplicationUser() { Email = email, UserName = email, BankId = 1, };
                
                 var result = await _UserManager.CreateAsync(applicationUser, password);
                 if (result.Succeeded)

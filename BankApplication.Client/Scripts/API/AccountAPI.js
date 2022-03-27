@@ -32,4 +32,15 @@ signin(email, password) {
         .catch((error) => reject(error.response.data));
     });
   },
+  CustomerRegistration(email, password) {
+    return new Promise((resolve, reject) => {
+      Axios.post(ACCOUNT_API_ROOT + "/register"+ `?email=${email}&password=${password}`)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
+
 }
+
+
+

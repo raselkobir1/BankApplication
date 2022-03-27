@@ -12,4 +12,7 @@ export default {
       singOut() {
         return AccountAPI.signOut();
       },
+      CustomerRegistration(email, password) {
+        return AccountAPI.CustomerRegistration(email, password);
+      }
 }
