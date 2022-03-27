@@ -1,0 +1,44 @@
+﻿@model bool
+
+@{
+    ViewData["Title"] = "EmailConfirm";
+}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Cellect Web</title>
+    <link rel="stylesheet" href="~/Styles/Application.css" />
+</head>
+
+<div class="page-wrapper">
+    <div class="page-layout page-public-layout">
+        <div class="page confirm-email">
+            <div class="container">
+                <div class="row">
+                    <div class="content-section">
+                        <section>
+                            <div class="login-box">
+                                <div class="w-elcome">
+                                    @if (Model)
+                                    {
+                                        <p class="section-title">
+                                            Awesome! <br />You successfully confirm your account
+                                        </p>
+                                        <a class="btn-cellect" href="@ViewBag.REDIRECT_LINK"> login your account</a>
+                                    }
+                                    else
+                                    {
+                                        <p>Sorry your email verification link is invalid.</p>
+                                        <p>Please try again</p>
+                                    }
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

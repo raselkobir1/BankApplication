@@ -97,6 +97,7 @@ namespace BankApplication.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapControllerRoute(pattern: "confirm-email", name: "ConfirmEmail", defaults: new { controller = "Home", action = "ConfirmEmail" });
                 endpoints.MapControllerRoute(pattern: "{*url}", name: "public", defaults: new { controller = "Home", action = "Index" });
             });
         }

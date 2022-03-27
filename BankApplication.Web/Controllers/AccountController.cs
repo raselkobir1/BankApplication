@@ -66,7 +66,19 @@ namespace BankApplication.Web.Controllers
             {
                 throw;
             }
-            
+        }
+
+        [HttpPost]
+        [Route("signin")]
+        public async Task<IActionResult> SignIn(string email, string password)
+        {
+            var result = await _SignInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
+            ApplicationUser user = await _UserManager.FindByEmailAsync(email);
+
+            if (!await _UserManager.IsEmailConfirmedAsync(user))
+                return Ok("Please confirm your email");
+
+            return Ok(new { AppUserId = user.Id });
         }
 
         // customer and account of custoerm create for bank 
@@ -106,18 +118,6 @@ namespace BankApplication.Web.Controllers
             return Ok("Bank account create successfully");
         }
 
-        [HttpPost]
-        [Route("signin")]
-        public async Task<IActionResult> SignIn(string email, string password) 
-        {
-            var result = await _SignInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
-            ApplicationUser user = await _UserManager.FindByEmailAsync(email);
-
-            if (!await _UserManager.IsEmailConfirmedAsync(user))
-                return Ok("Please confirm your email");
-
-            return Ok( new { AppUserId = user.Id});  
-        }
 
         [HttpPost]
         [Route("transaction")]
@@ -196,7 +196,7 @@ namespace BankApplication.Web.Controllers
 
         [HttpPut("active-account/{accountid})")]
         [Authorize(Roles = "Administrator")]
-        public IActionResult ActiveCustomerAccount(long accountid)
+        public IActionResult ActivationCustomerAccount(long accountid) 
         {
             var accounts = _DatabaseContext.BankAccounts;
             var account = accounts.Where(a => a.Id == accountid).FirstOrDefault();
