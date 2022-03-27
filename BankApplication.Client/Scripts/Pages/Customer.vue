@@ -6,19 +6,19 @@
       <div class="position-sticky pt-3">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link active" @click="OnClickApplayBankAccount" aria-current="page" href="#">
+            <a class="nav-link active" @click.prevent="OnClickApplayBankAccount" aria-current="page" href="#">
               <span data-feather="home"></span>
               Applay for Account
             </a>
           </li>
              <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">
+            <a class="nav-link active" @click.prevent="OnClickDepositeAmount" aria-current="page" href="#">
               <span data-feather="home"></span>
               Deposite Balance
             </a>
           </li>
              <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">
+            <a class="nav-link active" @click.prevent="OnClickWidthdrownAmount" aria-current="page" href="#">
               <span data-feather="home"></span>
               Widthdrown Balance
             </a>
@@ -83,9 +83,14 @@ export default {
      },
      OnClickApplayBankAccount(){
           this.$router.push({ name: "applayBankAccount"});
-     }
-
-     
+     },
+    OnClickDepositeAmount(){
+        this.$router.push({ name: "deposite"});
     },
+    OnClickWidthdrownAmount() {
+      this.$router.push({ name: "widthdrown"});
+    }
+
+  },
 };
 </script>

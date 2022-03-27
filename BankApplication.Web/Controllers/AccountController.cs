@@ -225,6 +225,23 @@ namespace BankApplication.Web.Controllers
 
             return Ok("Customer account Inactivated successfull");
         }
+        [HttpGet]
+        [Route("active-acc-list")]
+        public async Task<IActionResult> GetLoginCustomerActiveAccount() 
+        {
+            try
+            {
+                ApplicationUser user = null;
+                user = await _UserManager.GetUserAsync(HttpContext.User);
+                var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id && a.AccountStatus == true).ToList();
+                return Ok(new { acclist = accounts });
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+    
+        } 
 
         [HttpPost]
         [Route("signout")]

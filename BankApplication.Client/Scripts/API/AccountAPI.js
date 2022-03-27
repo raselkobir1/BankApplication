@@ -60,6 +60,20 @@ signin(email, password) {
         .catch((error) => reject(error.response.data));
     });
   },
+  getActiveAccountList() {
+    return new Promise((resolve, reject) => {
+      Axios.get(ACCOUNT_API_ROOT + `/active-acc-list`)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
+  transactionAmount(transactionModel) {
+    return new Promise((resolve, reject) => {
+      Axios.post(ACCOUNT_API_ROOT + "/transaction", transactionModel)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
   
   
 }

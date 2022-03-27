@@ -7,6 +7,7 @@ import Customer from "@scripts/Pages/Customer.vue";
 import Registration from "@scripts/Pages/Registration.vue";
 import ApplayBankAccount from "@scripts/Pages/ApplayBankAccount.vue";
 import Deposite from "@scripts/Pages/Deposite.vue";
+import Widthdrown from "@scripts/Pages/Widthdrown.vue";
 
 
 
@@ -24,6 +25,8 @@ let router = new Router({
                 { path: "registration", name:"registration", component:Registration },
                 { path: "applayBankAccount", name:"applayBankAccount", component:ApplayBankAccount },
                 { path: "deposite", name:"deposite", component:Deposite },
+                { path: "widthdrown", name:"widthdrown", component:Widthdrown },
+                
                 
                 
             ]

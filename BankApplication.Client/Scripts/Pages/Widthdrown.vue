@@ -1,9 +1,9 @@
 <template>
-  <div class="page page-deposite">
+  <div class="page page-widthdrown">
     <div class="row d-flex justify-content-center">
       <div class="col-4 text-center">
         <form>
-          <h1 class="h3 mb-3 fw-normal">Deposite Balance</h1>
+          <h1 class="h3 mb-3 fw-normal">Widthdrown Balance</h1>
 
           <div class="form-floating">
              <select class="form-control" v-model="accNo" id="floatingSelect">
@@ -24,8 +24,8 @@
             />
             <label for="floatingAmount">Amount</label>
           </div>
-          <button @click.prevent="onDepositeAmount" class="w-100 btn btn-lg btn-primary mb-5"  type="button">
-            Deposite
+          <button @click.prevent="onWidthdrownAmount" class="w-100 btn btn-lg btn-primary mb-5"  type="button">
+            Widthdrown
           </button>
         </form>
       </div>
@@ -49,15 +49,15 @@ export default {
     this.getActiveAccountList();
   },
   methods: {
-    async onDepositeAmount() {
+    async onWidthdrownAmount() {
         let transactionModel = 
         {
             accountNo: this.accNo.accountNo,
-            depositeAmount: this.amount,
-            WidthrownAmount: 0,
-            transactionType: "Deposite",
+            WidthrownAmount: this.amount,
+            depositeAmount: 0,
+            transactionType: "Widthdrown",
         };
-        console.log("Request deposite data :", this.accNo.accountNo, this.amount);
+        console.log("Request Widthdrown data :", this.accNo.accountNo, this.amount);
         AccountService.transactionAmount(transactionModel)
           .then((response) => {
             console.log("Response data :", response.data);

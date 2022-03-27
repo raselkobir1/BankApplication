@@ -23,7 +23,15 @@ export default {
       },
       accountInActivationProcess(accountid){
         return AccountAPI.accountInActivationProcess(accountid);
-      }
+      },
+      getActiveAccountList(){
+        return AccountAPI.getActiveAccountList();
+      },
+      
+      transactionAmount(transactionModel){
+        return AccountAPI.transactionAmount(transactionModel);
+      },
+      
 
 }
 
