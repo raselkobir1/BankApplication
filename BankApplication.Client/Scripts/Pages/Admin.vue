@@ -46,13 +46,10 @@
               <td>{{account.accountType}}</td>
               <td>{{account.accountStatus == true ? "Active":"Inactive"}}</td>
               <td>
-                <button type="button" class="btn btn-sm btn-primary">A/C Active</button>
-                <button type="button" class="btn btn-sm btn-warning">A/C Inactive</button>
+                <button type="button" @click.prevent="OnClickActiveAccount(account.id)" class="btn btn-sm btn-primary">A/C Active</button>
+                <button type="button" @click.prevent="OnClickInActiveAccount(account.id)" class="btn btn-sm btn-primary">A/C Inactive</button>
               </td>
-
-          
             </tr>
-        
           </tbody>
         </table>
       </div>
@@ -111,8 +108,27 @@ export default {
           console.log(error);
         })
      },
-
-     
+    OnClickActiveAccount(id) {
+      AccountService.accountActivationProcess(id)
+        .then((response) => {
+          console.log("id for activation account :",id);
+          this.getCustomerAccounts();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
     },
+    OnClickInActiveAccount(id) {
+      AccountService.accountInActivationProcess(id)
+        .then((response) => {
+          console.log("id for Inactivation account :",id);
+          this.getCustomerAccounts();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    }
+     
+  },
 };
 </script>

@@ -99,7 +99,7 @@ namespace BankApplication.Web.Controllers
                 {
                     user = await _UserManager.GetUserAsync(HttpContext.User);
                     Random rnd = new Random();
-                    int accNumber = rnd.Next(100, 201);  
+                    int accNumber = rnd.Next(100, 5000);  
 
                     var bankAccount = new BankAccount()
                     {
@@ -198,11 +198,11 @@ namespace BankApplication.Web.Controllers
             }
         }
 
-        [HttpPut("active-account/{accountid})")]
+        [HttpPut("active-account")]
         [Authorize(Roles = "Administrator")]
         public IActionResult ActivationCustomerAccount(long accountid) 
         {
-            var accounts = _DatabaseContext.BankAccounts;
+            var accounts = _DatabaseContext.BankAccounts.ToList();
             var account = accounts.Where(a => a.Id == accountid).FirstOrDefault();
             account.AccountStatus = true;
 
@@ -212,7 +212,7 @@ namespace BankApplication.Web.Controllers
             return Ok("Customer account approved and Activated");
         }
 
-        [HttpPut("inactive-account/{accountid})")]
+        [HttpPut("inactive-account")]
         [Authorize(Roles = "Administrator")]
         public IActionResult InactivationCustomerAccount(long accountid) 
         {

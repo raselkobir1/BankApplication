@@ -17,6 +17,14 @@ export default {
       },
       customerApplayForAccount(accApplayModel) {
         return AccountAPI.customerApplayForAccount(accApplayModel);
+      },
+      accountActivationProcess(accountid){
+        return AccountAPI.accountActivationProcess(accountid);
+      },
+      accountInActivationProcess(accountid){
+        return AccountAPI.accountInActivationProcess(accountid);
       }
-      
+
 }
+
+

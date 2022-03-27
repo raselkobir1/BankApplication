@@ -10222,12 +10222,22 @@ textarea.form-control-lg {
   background-color: #f5f5f5;
 }
 
-.page.page-admin.container, .page.page-admin.page-login {
+.page.page-admin.container-fluid, .page.page-admin.container-sm, .page.page-admin.container-md, .page.page-admin.container-lg, .page.page-admin.container-xl, .page.page-admin.container-xxl {
   height: 800px;
 }
-.page.page-admin.container .row, .page.page-admin.page-login .row {
+.page.page-admin.container-fluid .row, .page.page-admin.container-sm .row, .page.page-admin.container-md .row, .page.page-admin.container-lg .row, .page.page-admin.container-xl .row, .page.page-admin.container-xxl .row {
   height: 85vh;
 }
-.page.page-admin.container .row .sidebar, .page.page-admin.page-login .row .sidebar {
+.page.page-admin.container-fluid .row .sidebar, .page.page-admin.container-sm .row .sidebar, .page.page-admin.container-md .row .sidebar, .page.page-admin.container-lg .row .sidebar, .page.page-admin.container-xl .row .sidebar, .page.page-admin.container-xxl .row .sidebar {
+  background-color: #f3f3fa;
+}
+
+.page.page-customer.container-fluid, .page.page-customer.container-sm, .page.page-customer.container-md, .page.page-customer.container-lg, .page.page-customer.container-xl, .page.page-customer.container-xxl {
+  height: 800px;
+}
+.page.page-customer.container-fluid .row, .page.page-customer.container-sm .row, .page.page-customer.container-md .row, .page.page-customer.container-lg .row, .page.page-customer.container-xl .row, .page.page-customer.container-xxl .row {
+  height: 85vh;
+}
+.page.page-customer.container-fluid .row .sidebar, .page.page-customer.container-sm .row .sidebar, .page.page-customer.container-md .row .sidebar, .page.page-customer.container-lg .row .sidebar, .page.page-customer.container-xl .row .sidebar, .page.page-customer.container-xxl .row .sidebar {
   background-color: #f3f3fa;
 }

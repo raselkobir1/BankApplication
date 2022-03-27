@@ -6,6 +6,8 @@ import Admin from "@scripts/Pages/Admin.vue";
 import Customer from "@scripts/Pages/Customer.vue";
 import Registration from "@scripts/Pages/Registration.vue";
 import ApplayBankAccount from "@scripts/Pages/ApplayBankAccount.vue";
+import Deposite from "@scripts/Pages/Deposite.vue";
+
 
 
 Vue.use(Router);
@@ -21,6 +23,7 @@ let router = new Router({
                 { path: "customer", name:"customer", component:Customer },
                 { path: "registration", name:"registration", component:Registration },
                 { path: "applayBankAccount", name:"applayBankAccount", component:ApplayBankAccount },
+                { path: "deposite", name:"deposite", component:Deposite },
                 
                 
             ]

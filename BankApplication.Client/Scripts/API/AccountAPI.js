@@ -46,7 +46,21 @@ signin(email, password) {
         .catch((error) => reject(error.response.data));
     });
   },
-
+  accountActivationProcess(accountid) {
+    return new Promise((resolve, reject) => {
+      Axios.put(ACCOUNT_API_ROOT + "/active-account" + `?accountid=${accountid}`)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
+  accountInActivationProcess(accountid) {
+    return new Promise((resolve, reject) => {
+      Axios.put(ACCOUNT_API_ROOT + "/inactive-account" + `?accountid=${accountid}`)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
+  
   
 }
 
