@@ -6,5 +6,7 @@
         public long ApplicationUserId { get; set; }
         public double OpeningBalance { get; set; }
         public string AccountType { get; set; }
+        public string Brance { get; set; }
+        public string Accholder { get; set; } 
     }
 }

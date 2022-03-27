@@ -60,8 +60,9 @@ namespace BankApplication.Web.Controllers
                     await RoleCreateIfNotExists();
                     _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
                     _DatabaseContext.SaveChanges();
+                    applicationUser = await _UserManager.FindByEmailAsync(email);
 
-                    return Ok("User create successfully with role");
+                    return Ok(new { appuser = applicationUser }); 
                 }
                
                 return Ok("Something want wrong...!!");
@@ -86,7 +87,7 @@ namespace BankApplication.Web.Controllers
             return Ok(new { AppUserId = user.Id, role = role });
         }
 
-        // customer and account of custoerm create for bank 
+        // customer applay for a bank account  
         [HttpPost]
         [Route("bankaccount-create")]
         public async Task <IActionResult> CustomerBankAccountCreate([FromBody] BankAccountDto bankAccountDto)   
@@ -97,7 +98,6 @@ namespace BankApplication.Web.Controllers
                 if (HttpContext.User.Identity.IsAuthenticated)
                 {
                     user = await _UserManager.GetUserAsync(HttpContext.User);
-                    //role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
                     Random rnd = new Random();
                     int accNumber = rnd.Next(100, 201);  
 
@@ -109,18 +109,18 @@ namespace BankApplication.Web.Controllers
                          AccountStatus = false,
                          AccountType = bankAccountDto.AccountType,
                          OpeningBalance = bankAccountDto.OpeningBalance,
-                              
                     };
+
                     _DatabaseContext.Add(bankAccount);
                     _DatabaseContext.SaveChanges();
+                    return Ok(new { bankaccount = bankAccount });
                 }
-               
+                return Ok("User is not Verified");
             }
             catch (System.Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
-            return Ok("Bank account create successfully");
         }
 
 

@@ -14,5 +14,9 @@ export default {
       },
       CustomerRegistration(email, password) {
         return AccountAPI.CustomerRegistration(email, password);
+      },
+      customerApplayForAccount(accApplayModel) {
+        return AccountAPI.customerApplayForAccount(accApplayModel);
       }
+      
 }

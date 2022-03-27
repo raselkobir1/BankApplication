@@ -5,6 +5,7 @@ import Login from "@scripts/Pages/Login.vue";
 import Admin from "@scripts/Pages/Admin.vue";
 import Customer from "@scripts/Pages/Customer.vue";
 import Registration from "@scripts/Pages/Registration.vue";
+import ApplayBankAccount from "@scripts/Pages/ApplayBankAccount.vue";
 
 
 Vue.use(Router);
@@ -19,6 +20,8 @@ let router = new Router({
                 { path: "admin", name:"admin", component:Admin },
                 { path: "customer", name:"customer", component:Customer },
                 { path: "registration", name:"registration", component:Registration },
+                { path: "applayBankAccount", name:"applayBankAccount", component:ApplayBankAccount },
+                
                 
             ]
         }
