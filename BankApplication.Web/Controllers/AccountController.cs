@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -253,9 +254,13 @@ namespace BankApplication.Web.Controllers
                 user = await _UserManager.GetUserAsync(HttpContext.User);
                 var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id && a.AccountStatus == true).ToList();
                 var balanceStatement = _DatabaseContext.Balances.ToList();
-                var transactions = accounts.Select(s1 => s1.Id).Intersect(balanceStatement.Select(s2 => s2.BankAccountId)).ToList();
+                
+                var finalList = (from a in accounts
+                                 join bs in balanceStatement on a.Id equals bs.BankAccountId
+                                 select new { AccType = a.AccountType, AccNo = bs.AccountNo, Deposite = bs.DepositeAmount, Widthdrown = bs.WidthrownAmount, Balance =bs.TotalAmount , Date=bs.TransactionDate })
+                                .ToList(); 
 
-                return Ok(new { transactions = transactions });  
+                return Ok(new { transactions = finalList });  
             }
             catch (Exception e)
             {
