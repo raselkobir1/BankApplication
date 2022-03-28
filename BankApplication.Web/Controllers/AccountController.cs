@@ -241,7 +241,28 @@ namespace BankApplication.Web.Controllers
                 throw new Exception(e.Message);
             }
     
-        } 
+        }
+
+        [HttpGet]
+        [Route("transaction-history")]
+        public async Task<IActionResult> GetLoginCustomerTransactionHistoy() 
+        {
+            try
+            {
+                ApplicationUser user = null;
+                user = await _UserManager.GetUserAsync(HttpContext.User);
+                var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id && a.AccountStatus == true).ToList();
+                var balanceStatement = _DatabaseContext.Balances.ToList();
+                var transactions = accounts.Select(s1 => s1.Id).Intersect(balanceStatement.Select(s2 => s2.BankAccountId)).ToList();
+
+                return Ok(new { transactions = transactions });  
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+        }
 
         [HttpPost]
         [Route("signout")]
