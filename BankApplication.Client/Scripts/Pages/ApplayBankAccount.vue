@@ -89,9 +89,15 @@ export default {
             console.log(error);
           })
           .finally(() => {
-            
+            this.ClearInputField();
           });
     },
+    ClearInputField() {
+        this.brance ='',
+        this.accholder ='',
+        this.openingBalance = '',
+        this.accountType =''
+    }
   },
 };
 </script>

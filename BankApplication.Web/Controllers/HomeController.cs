@@ -43,7 +43,7 @@ namespace BankApplication.Web.Controllers
                         //await _SignInManager.SignInAsync(data.Item1, true);
                         HttpRequest request = _HttpContextAccessor.HttpContext.Request;
                         var redirect_link = $"{request.Scheme}://{request.Host}{request.PathBase}";
-                        redirect_link = $"{redirect_link}/login";
+                        redirect_link = $"{redirect_link}";
 
                         ViewBag.REDIRECT_LINK = redirect_link;
                         return View(true);

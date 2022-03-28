@@ -59,7 +59,7 @@ namespace BankApplication.Web.Controllers
                     _EmailSender.SendEmail(message);
 
                     await RoleCreateIfNotExists();
-                    _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
+                    _UserManager.AddToRoleAsync(applicationUser, Roles.Administrator.ToString()).Wait();
                     _DatabaseContext.SaveChanges();
                     applicationUser = await _UserManager.FindByEmailAsync(email);
 
@@ -134,7 +134,6 @@ namespace BankApplication.Web.Controllers
                 ApplicationUser user = null;
                 user = await _UserManager.GetUserAsync(HttpContext.User);
                 var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id).ToList();
-
                 var currentUserAccount = accounts.FirstOrDefault(a => a.AccountNo == balanceDto.AccountNo);
                
 
@@ -190,8 +189,17 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                var accounts = _DatabaseContext.BankAccounts.ToList();
-                return Ok(new {accounts = accounts });
+                var accountList = _DatabaseContext.BankAccounts.ToList(); 
+                var users = _DatabaseContext.Users.ToList(); 
+
+                //var query = objEntities.Employee.Join(objEntities.Department, r => r.EmpId, p => p.EmpId, (r, p) => new { r.FirstName, r.LastName, p.DepartmentName });
+                var accounts = (from a in accountList
+                                 join u in users on a.ApplicationUserId equals u.Id
+                                 select new { UserName = u.UserName , AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, a.Id })
+                                .ToList(); 
+
+
+                return Ok(new {accounts = accounts }); 
             }
             catch (Exception e)
             {

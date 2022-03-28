@@ -3,17 +3,17 @@
     <div class="row d-flex justify-content-center">
       <div class="col-3 text-center">
         <form>
-          <img
+          <!-- <img
             class="mt-4 img-bs"
             src="/assets/Images/Bootstrap_logo.svg.png"
             width="130px"
-          />
+          /> -->
           <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
           <div class="form-floating">
             <input
               type="email"
               v-model="email"
-              class="form-control"
+              class="form-control mb-3"
               id="floatingInput"
               placeholder="name@example.com"
             />
@@ -24,18 +24,18 @@
             <input
               type="password"
               v-model="password"
-              class="form-control"
+              class="form-control mb-3"
               id="floatingPassword"
               placeholder="password"
             />
             <label for="floatingPassword">password</label>
           </div>
-          <div class="checkbox mb-3">
+          <!-- <div class="checkbox mb-3">
             <label>
               <input type="checkbox" value="remember-me" />Remember me
             </label>
-          </div>
-          <button @click.prevent="onSignin" class="w-100 btn btn-lg btn-primary"  type="button">
+          </div> -->
+          <button @click.prevent="onSignin" class="w-100 btn btn-lg btn-primary mb-2"  type="button">
             Sign in
           </button>
           <a href="#" @click.prevent="onClickRegistration" >Register your account</a >
@@ -77,12 +77,16 @@ export default {
             console.log(error);
           })
           .finally(() => {
-            
+              this.ClearInputField();
           });
     },
     onClickRegistration() {
       //alert("cliek registration");
       this.$router.push({ name: "registration" });
+    },
+    ClearInputField() {
+      this.email ='',
+      this.password =''
     }
   },
 };

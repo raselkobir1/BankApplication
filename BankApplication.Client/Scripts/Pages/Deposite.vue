@@ -6,7 +6,7 @@
           <h1 class="h3 mb-3 fw-normal">Deposite Balance</h1>
 
           <div class="form-floating">
-             <select class="form-control" v-model="accNo" id="floatingSelect">
+             <select class="form-control mb-2" v-model="accNo" id="floatingSelect">
                 <option v-for="account in acclist" :key="account" :value="account">
                     {{ account.accountNo }}
                 </option>
@@ -24,7 +24,7 @@
             />
             <label for="floatingAmount">Amount</label>
           </div>
-          <button @click.prevent="onDepositeAmount" class="w-100 btn btn-lg btn-primary mb-5"  type="button">
+          <button @click.prevent="onDepositeAmount" class="w-100 btn btn-lg btn-primary mb-3"  type="button">
             Deposite
           </button>
         </form>
@@ -66,7 +66,7 @@ export default {
             console.log(error);
           })
           .finally(() => {
-            
+            this.ClearInputField();
           });
     },
     getActiveAccountList() {
@@ -78,7 +78,11 @@ export default {
           .catch((error) => {
             console.log(error);
           })
-    }
+      },
+    ClearInputField() {
+        this.accNo ='',
+        this.amount =''
+      }
   },
 };
 </script>

@@ -58,9 +58,13 @@ export default {
             console.log(error);
           })
           .finally(() => {
-            
+              this.ClearInputField();
           });
     },
+      ClearInputField() {
+        this.email ='',
+        this.password =''
+      }
   },
 };
 </script>
