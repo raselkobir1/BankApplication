@@ -8,7 +8,7 @@
             <input
               type="email"
               v-model="email"
-              class="form-control"
+              class="form-control mb-2"
               id="floatingInput"
               placeholder="name@example.com"
             />
@@ -19,7 +19,7 @@
             <input
               type="password"
               v-model="password"
-              class="form-control"
+              class="form-control mb-2"
               id="floatingPassword"
               placeholder="password"
             />

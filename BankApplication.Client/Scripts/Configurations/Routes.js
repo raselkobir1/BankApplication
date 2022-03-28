@@ -8,6 +8,7 @@ import Registration from "@scripts/Pages/Registration.vue";
 import ApplayBankAccount from "@scripts/Pages/ApplayBankAccount.vue";
 import Deposite from "@scripts/Pages/Deposite.vue";
 import Widthdrown from "@scripts/Pages/Widthdrown.vue";
+import TransactionStatement from "@scripts/Pages/TransactionStatement.vue";
 
 
 
@@ -19,16 +20,20 @@ let router = new Router({
         {
             path: "/", name: "public-layout", component:PublicLayout,
             children: [
-                { path: "login", name:"login", component:Login },
-                { path: "admin", name:"admin", component:Admin },
-                { path: "customer", name:"customer", component:Customer },
+                { path: "", name:"login", component:Login },
                 { path: "registration", name:"registration", component:Registration },
-                { path: "applayBankAccount", name:"applayBankAccount", component:ApplayBankAccount },
-                { path: "deposite", name:"deposite", component:Deposite },
-                { path: "widthdrown", name:"widthdrown", component:Widthdrown },
-                
-                
-                
+                { path: "admin", name:"admin", component:Admin },
+                { path: "customer", name:"customer", component:Customer, 
+                redirect: { name: "transactionStatement" },
+                    children: [
+                        { path: "applayBankAccount", name:"applayBankAccount", component:ApplayBankAccount },
+                        { path: "deposite", name:"deposite", component:Deposite },
+                        { path: "widthdrown", name:"widthdrown", component:Widthdrown },
+                        { path: "transactionStatement", name:"transactionStatement", component:TransactionStatement },
+                        
+                    ]
+                },
+
             ]
         }
     ]

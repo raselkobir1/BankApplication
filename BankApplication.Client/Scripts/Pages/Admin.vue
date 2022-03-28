@@ -31,8 +31,9 @@
           <thead>
             <tr>
               <th scope="col">SL</th>
+              <th scope="col">User name</th>
               <th scope="col">Account No</th>
-              <th scope="col">OP Balance</th>
+              <th scope="col">Balance</th>
               <th scope="col">A/C Type</th>
               <th scope="col">Status</th>
               <th scope="col">Actions</th>
@@ -41,6 +42,7 @@
           <tbody>
             <tr v-for="(account, index) of accountList" :key="index">
               <td>{{index}}</td>
+              <td>{{account.userName}}</td>
               <td>{{account.accountNo}}</td>
               <td>{{account.openingBalance}}</td>
               <td>{{account.accountType}}</td>
