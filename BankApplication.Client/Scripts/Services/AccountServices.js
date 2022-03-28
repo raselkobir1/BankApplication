@@ -31,8 +31,11 @@ export default {
       transactionAmount(transactionModel){
         return AccountAPI.transactionAmount(transactionModel);
       },
-      
+      customerTransactionHistory(){
+        return AccountAPI.customerTransactionHistory();
+      },
 
+      
 }
 
 

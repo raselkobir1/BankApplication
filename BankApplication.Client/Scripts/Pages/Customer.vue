@@ -42,13 +42,44 @@
           </div>
         </div>
       </div>
-      <div class="card text-white bg-primary mb-3" style="max-width: 18rem;">
+      <!-- <div class="card text-white bg-primary mb-3" style="max-width: 18rem;">
         <div class="card-header">Header</div>
         <div class="card-body">
           <h5 class="card-title">Primary card title</h5>
           <p class="card-text">Total Balance</p>
         </div>
-    </div>
+    </div> -->
+        <h4>Customers account Transaction history</h4>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">SL</th>
+              <th scope="col">Account No</th>
+              <th scope="col">A/C Type</th>
+              <th scope="col">Balance</th>
+              <th scope="col">Deposite</th>
+              <th scope="col">widthdrown</th>
+              <th scope="col">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(account, index) of transaction" :key="index">
+              <td>{{index}}</td>
+              <td>{{account.accNo}}</td>
+              <td>{{account.accType}}</td>
+              <td>{{account.balance}}</td>
+              <td>{{account.deposite}}</td>
+              <td>{{account.widthdrown}}</td>
+              <td>{{account.date}}</td>
+   
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+
+
     </main>
   </div>
 </div>
@@ -62,11 +93,13 @@ import AccountService from "@scripts/Services/AccountServices";
 export default {
   data() {
     return {
-      context: ''
+      context: '',
+      transaction:[],
     };
   },
   mounted(){
-    this.getApplicationContext()
+    this.getApplicationContext(),
+    this.OnLoadTransactionHistoryView()
   },
   methods: {
     getApplicationContext() {
@@ -96,8 +129,19 @@ export default {
     },
     OnClickWidthdrownAmount() {
       this.$router.push({ name: "widthdrown"});
-    }
+    },
+    OnLoadTransactionHistoryView(){
+           AccountService.customerTransactionHistory()
+        .then((response) => {
+          this.transaction = response.data.transactions;
+          console.log("Transaction history :", this.transaction);
 
+          //this.$router.push({ name: "login"});
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    }
   },
 };
 </script>

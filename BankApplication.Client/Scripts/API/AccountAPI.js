@@ -74,7 +74,13 @@ signin(email, password) {
         .catch((error) => reject(error.response.data));
     });
   },
-  
+  customerTransactionHistory() {
+    return new Promise((resolve, reject) => {
+      Axios.get(ACCOUNT_API_ROOT + `/transaction-history`)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
   
 }
 
