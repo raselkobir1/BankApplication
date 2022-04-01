@@ -1,6 +1,7 @@
 using BankApplication.Web.Models;
 using EmailService;
 using EmailService.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -12,19 +13,24 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BankApplication.Web
 {
     public class Startup
     {
+        public string migrationAssemblyName;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            migrationAssemblyName = typeof(Startup).Assembly.FullName;
         }
 
         public IConfiguration Configuration { get; }
@@ -46,8 +52,30 @@ namespace BankApplication.Web
                 .AddEntityFrameworkStores<DatabaseContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddHttpContextAccessor();
+            services.AddDbContext<DatabaseContext>(options =>
+               options.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationAssemblyName)));
 
+            //jwt settings
+           services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options => {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidAudience = Configuration["JwtSettings:ValidAudience"],
+                    ValidIssuer = Configuration["JwtSettings:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSettings:Secret"]))
+                };
+            });
+
+            services.AddHttpContextAccessor();
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -67,10 +95,33 @@ namespace BankApplication.Web
 
             services.AddControllers();
             services.AddControllersWithViews();
+
+            //swager configuration for JWT Bearer Token
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BankApplication.Web", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BankApplication.Web", Version = "v1" , Description = "JWT authentication with swagger in asp.net 5" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter Bearer [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\""
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement() {
+                    {
+                        new OpenApiSecurityScheme {
+                            Reference = new OpenApiReference {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
             });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

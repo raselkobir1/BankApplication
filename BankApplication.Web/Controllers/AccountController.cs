@@ -2,15 +2,20 @@
 using BankApplication.Web.Models;
 using EmailService;
 using EmailService.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,9 +30,10 @@ namespace BankApplication.Web.Controllers
         private UserManager<ApplicationUser> _UserManager { get; set; }
         private readonly IHttpContextAccessor _HttpContextAccessor;
         private RoleManager<IdentityRole<long>> _RoleManager { get; set; }
-        private readonly IEmailSender _EmailSender; 
+        private readonly IEmailSender _EmailSender;
+        private readonly IConfiguration _Configuration;
 
-        public AccountController(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender)
+        public AccountController(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
         {
             _DatabaseContext = databaseContext;
             _SignInManager = signInManager;
@@ -35,6 +41,7 @@ namespace BankApplication.Web.Controllers
             _UserManager = userManager;
             _RoleManager = roleManager;
             _EmailSender = emailSender;
+            _Configuration = configuration;
         }
         //admin acccount create
         [HttpPost]
@@ -85,7 +92,12 @@ namespace BankApplication.Web.Controllers
             if (!await _UserManager.IsEmailConfirmedAsync(user))
                 return Ok("Please confirm your email");
 
-            return Ok(new { AppUserId = user.Id, role = role });
+            return Ok(new 
+            { 
+                AppUserId = user.Id,
+                role = role ,
+                token = await CreateTokenAsync(user)
+            });
         }
 
         // customer applay for a bank account  
@@ -95,10 +107,11 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                ApplicationUser user = null;
-                if (HttpContext.User.Identity.IsAuthenticated)
+                //if (HttpContext.User.Identity.IsAuthenticated)
+                var user = await GetLoggedInUserAsync();
+                if (user != null)
                 {
-                    user = await _UserManager.GetUserAsync(HttpContext.User);
+                    //user = await _UserManager.GetUserAsync(HttpContext.User);
                     Random rnd = new Random();
                     int accNumber = rnd.Next(100, 5000);  
 
@@ -131,8 +144,9 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                ApplicationUser user = null;
-                user = await _UserManager.GetUserAsync(HttpContext.User);
+                //ApplicationUser user = null;
+                //user = await _UserManager.GetUserAsync(HttpContext.User);
+                var user = await GetLoggedInUserAsync();
                 var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id).ToList();
                 var currentUserAccount = accounts.FirstOrDefault(a => a.AccountNo == balanceDto.AccountNo);
                
@@ -184,7 +198,7 @@ namespace BankApplication.Web.Controllers
         }
 
         [HttpGet("get-accounts")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = "Administrator")]
         public IActionResult CustomerBankAccounts()
         {
             try
@@ -207,8 +221,8 @@ namespace BankApplication.Web.Controllers
             }
         }
 
-        [HttpPut("active-account")]
-        [Authorize(Roles = "Administrator")]
+        [HttpPut("active-account")] 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public IActionResult ActivationCustomerAccount(long accountid) 
         {
             var accounts = _DatabaseContext.BankAccounts.ToList();
@@ -222,7 +236,7 @@ namespace BankApplication.Web.Controllers
         }
 
         [HttpPut("inactive-account")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public IActionResult InactivationCustomerAccount(long accountid) 
         {
             var accounts = _DatabaseContext.BankAccounts.ToList();
@@ -240,8 +254,9 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                ApplicationUser user = null;
-                user = await _UserManager.GetUserAsync(HttpContext.User);
+                //ApplicationUser user = null;
+                //user = await _UserManager.GetUserAsync(HttpContext.User);
+                var user = await GetLoggedInUserAsync();
                 var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id && a.AccountStatus == true).ToList();
                 return Ok(new { acclist = accounts });
             }
@@ -258,8 +273,9 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                ApplicationUser user = null;
-                user = await _UserManager.GetUserAsync(HttpContext.User);
+                //ApplicationUser user = null;
+                //user = await _UserManager.GetUserAsync(HttpContext.User);
+                var user = await GetLoggedInUserAsync();
                 var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id && a.AccountStatus == true).ToList();
                 var balanceStatement = _DatabaseContext.Balances.ToList();
                 
@@ -295,11 +311,13 @@ namespace BankApplication.Web.Controllers
         [HttpGet("app-context")]
         public async Task<IActionResult> GetApplicationContext()
         {
-            ApplicationUser user = null;
+            //ApplicationUser user = null;
+            var user = await GetLoggedInUserAsync();
             string role = "";
-            if (HttpContext.User.Identity.IsAuthenticated)
+            //if (HttpContext.User.Identity.IsAuthenticated)
+            if (user != null)
             {
-                user = await _UserManager.GetUserAsync(HttpContext.User);
+                //user = await _UserManager.GetUserAsync(HttpContext.User);
                 role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
             }
             return Ok(new { user = user, role = role });
@@ -320,6 +338,39 @@ namespace BankApplication.Web.Controllers
             }
         }
 
+        private async Task<string> CreateTokenAsync(ApplicationUser user)
+        {
+            var userRoles = await _UserManager.GetRolesAsync(user);
+            var authClaims = new List<Claim> {
+                new Claim(ClaimTypes.PrimarySid, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            };
+            foreach (var userRole in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
+
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Configuration["JwtSettings:Secret"]));
+
+            var securityToken = new JwtSecurityToken(
+                issuer: _Configuration["JwtSettings:ValidIssuer"],
+                audience: _Configuration["JwtSettings:ValidAudience"],
+                expires: DateTime.Now.AddDays(1),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+            );
+
+            var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+            return token;
+        }
+
+        private async Task<ApplicationUser> GetLoggedInUserAsync()
+        {
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.PrimarySid);
+            var loggedInUser = await _UserManager.FindByIdAsync(loggedInUserId);
+            return loggedInUser;
+        }
         private string GetSiteBaseUrl()
         {
             HttpRequest request = _HttpContextAccessor.HttpContext.Request;
