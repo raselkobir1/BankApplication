@@ -273,8 +273,6 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                //ApplicationUser user = null;
-                //user = await _UserManager.GetUserAsync(HttpContext.User);
                 var user = await GetLoggedInUserAsync();
                 var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id && a.AccountStatus == true).ToList();
                 var balanceStatement = _DatabaseContext.Balances.ToList();
@@ -311,13 +309,11 @@ namespace BankApplication.Web.Controllers
         [HttpGet("app-context")]
         public async Task<IActionResult> GetApplicationContext()
         {
-            //ApplicationUser user = null;
             var user = await GetLoggedInUserAsync();
             string role = "";
             //if (HttpContext.User.Identity.IsAuthenticated)
             if (user != null)
             {
-                //user = await _UserManager.GetUserAsync(HttpContext.User);
                 role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
             }
             return Ok(new { user = user, role = role });
@@ -344,7 +340,7 @@ namespace BankApplication.Web.Controllers
             var authClaims = new List<Claim> {
                 new Claim(ClaimTypes.PrimarySid, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             foreach (var userRole in userRoles)
             {

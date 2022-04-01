@@ -30,7 +30,6 @@ namespace BankApplication.Web
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            migrationAssemblyName = typeof(Startup).Assembly.FullName;
         }
 
         public IConfiguration Configuration { get; }
@@ -51,9 +50,6 @@ namespace BankApplication.Web
             services.AddIdentity<ApplicationUser, IdentityRole<long>>()
                 .AddEntityFrameworkStores<DatabaseContext>()
                 .AddDefaultTokenProviders();
-
-            services.AddDbContext<DatabaseContext>(options =>
-               options.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationAssemblyName)));
 
             //jwt settings
            services.AddAuthentication(options => {
@@ -125,14 +121,20 @@ namespace BankApplication.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DatabaseContext databaseContext)
         {
+            bool AutoMigrationEnabled = Configuration.GetSection("MigrationSettings:AutoMigrate").Get<bool>();
+            if (AutoMigrationEnabled)
+            {
+                databaseContext.Database.Migrate();
+            }
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BankApplication.Web v1"));
             }
+            
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
