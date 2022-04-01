@@ -1,4 +1,5 @@
 import Axios from "axios";
+import LocalStorageService from "../Services/LocalStorageService";
 
 const ACCOUNT_API_ROOT = SITE_API_ROOT + "api/Account";
 
@@ -7,14 +8,21 @@ export default {
 signin(email, password) {
     return new Promise((resolve, reject) => {
       Axios.post(ACCOUNT_API_ROOT + "/signin"+ `?email=${email}&password=${password}`)
-        .then((response) => resolve(response))
+        .then((response) => {
+          console.log("login-response: ", response.data);
+          LocalStorageService.setAuthenticationToken(response.data.token);
+          resolve(response);
+        })
         .catch((error) => reject(error.response.data));
     });
   },
   signOut() {
     return new Promise((resolve, reject) => {
       Axios.post(ACCOUNT_API_ROOT + "/signout")
-        .then((response) => resolve(response))
+        .then((response) => {
+          LocalStorageService.clearAuthenticationToken();
+          resolve(response);
+        })
         .catch((error) => reject(error.response.data));
     });
   },
