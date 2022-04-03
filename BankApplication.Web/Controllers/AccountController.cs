@@ -66,7 +66,7 @@ namespace BankApplication.Web.Controllers
                     _EmailSender.SendEmail(message);
 
                     await RoleCreateIfNotExists();
-                    _UserManager.AddToRoleAsync(applicationUser, Roles.Administrator.ToString()).Wait();
+                    _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
                     _DatabaseContext.SaveChanges();
                     applicationUser = await _UserManager.FindByEmailAsync(email);
 
@@ -83,6 +83,7 @@ namespace BankApplication.Web.Controllers
 
         [HttpPost]
         [Route("signin")]
+        [AllowAnonymous]
         public async Task<IActionResult> SignIn(string email, string password)
         {
             var result = await _SignInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
@@ -95,6 +96,7 @@ namespace BankApplication.Web.Controllers
             return Ok(new 
             { 
                 AppUserId = user.Id,
+                userEmail = email,
                 role = role ,
                 token = await CreateTokenAsync(user)
             });

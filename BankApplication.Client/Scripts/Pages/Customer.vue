@@ -29,6 +29,13 @@
               View Statement
             </a>
           </li>
+          <hr>
+          <li class="nav-item">
+          <a class="nav-link active" @click.prevent="OnClickVuexExample" aria-current="page" href="#">
+            <span data-feather="home"></span>
+            Data From vuex
+          </a>
+        </li>
         </ul>
       </div>
     </nav>
@@ -41,7 +48,6 @@
           </div>
         </div>
       </div>
-
       <router-view></router-view>
 
     </main>
@@ -95,6 +101,9 @@ export default {
     },
     OnClickTransactionHistory() {
       this.$router.push({ name: "transactionStatement"});
+    },
+    OnClickVuexExample() {
+      this.$router.push({ name: "vuexExample"});
     },
   },
 };

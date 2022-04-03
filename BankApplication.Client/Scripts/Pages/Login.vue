@@ -50,6 +50,7 @@
 <script>
 //import LoginModel from "@scripts/Models/Accounts/LoginModel";
 import AccountService from "@scripts/Services/AccountServices";
+import Store from "@scripts/Store/Store"
 
 export default {
   data() {
@@ -65,7 +66,8 @@ export default {
     async onSignin() {
         AccountService.singin(this.email, this.password)
           .then((response) => {
-            console.log("Response data :", response.data);
+            console.log("login Response data -:", response.data);
+            Store.setLoggedinUser(response.data);
             if(response.data.role =="Administrator") {
               this.$router.push({ name: "admin" });
             }
