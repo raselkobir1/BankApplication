@@ -97,6 +97,13 @@ signin(email, password) {
         .catch((error) => reject(error.response.data));
     });
   },
+  forgotPassword(email) {
+    return new Promise((resolve, reject) => {
+      Axios.post(ACCOUNT_API_ROOT + "/forgot-password" + `?email=${email}`)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
   
 }
 

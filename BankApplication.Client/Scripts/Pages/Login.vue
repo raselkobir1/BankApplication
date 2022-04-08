@@ -39,6 +39,7 @@
             Sign in
           </button>
           <a href="#" @click.prevent="onClickRegistration" >Register your account</a >
+          <a href="#" @click.prevent="onForgotPassword" >Forgot password</a >
 
           <p class="mt-5 mb-3 text-muted">&copy; 2021-2022</p>
         </form>
@@ -85,6 +86,9 @@ export default {
     onClickRegistration() {
       //alert("cliek registration");
       this.$router.push({ name: "registration" });
+    },
+    onForgotPassword() {
+      this.$router.push({ name: "forgotPassword" });
     },
     ClearInputField() {
       this.email ='',

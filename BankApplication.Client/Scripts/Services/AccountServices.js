@@ -37,8 +37,10 @@ export default {
 
       CustomerRegistrationFormSubmit(fd) {
         return AccountAPI.CustomerRegistrationFormSubmit(fd); 
-      }  
-      
+      } ,
+      forgotPassword(email) {
+        return AccountAPI.forgotPassword(email);
+      }
 }
 
 
