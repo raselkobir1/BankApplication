@@ -40,6 +40,9 @@ export default {
       } ,
       forgotPassword(email) {
         return AccountAPI.forgotPassword(email);
+      },
+      resetPassword(model) {
+        return AccountAPI.resetPassword(model);
       }
 }
 

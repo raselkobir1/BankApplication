@@ -47,7 +47,7 @@ namespace BankApplication.Web.Controllers
             _Configuration = configuration;
             _Env = env;
         }
-        //formData
+        //--------------------study purpose----------------------------------
         [HttpPost]
         [Route("register-form")]
         public async Task<IActionResult> RegisterAccountForm( IFormFile Image)   
@@ -64,7 +64,6 @@ namespace BankApplication.Web.Controllers
             //var formDataReg = regModel.Image;
             return Ok();
         }
-
 
         //private string UploadedFile(RegistrationDto model)
         //{
@@ -83,7 +82,7 @@ namespace BankApplication.Web.Controllers
         //    return uniqueFileName;
         //}
 
-        //admin acccount create
+        //admin or customer acccount create
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> RegisterAccount(string email, string password)  
@@ -390,7 +389,7 @@ namespace BankApplication.Web.Controllers
 
                 var token = await _UserManager.GeneratePasswordResetTokenAsync(user);
                 token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                var resetPasswordUrl = $"{GetSiteBaseUrl()}/reset-password?email={user.Email}&token={token}";
+                var resetPasswordUrl = $"{GetSiteBaseUrl()}/resetPassword?email={user.Email}&token={token}";
                 var message = new Message(new string[] { user.Email }, "Password reset link", resetPasswordUrl);  
                 _EmailSender.SendEmail(message); 
                 return Ok();

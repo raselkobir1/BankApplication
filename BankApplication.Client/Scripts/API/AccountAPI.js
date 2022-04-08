@@ -104,6 +104,14 @@ signin(email, password) {
         .catch((error) => reject(error.response.data));
     });
   },
+  resetPassword(model) {
+    return new Promise((resolve, reject) => {
+      Axios.post(ACCOUNT_API_ROOT + "/reset-password", model)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
+
   
 }
 
