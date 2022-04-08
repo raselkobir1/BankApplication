@@ -4,6 +4,7 @@ using EmailService;
 using EmailService.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -32,8 +34,9 @@ namespace BankApplication.Web.Controllers
         private RoleManager<IdentityRole<long>> _RoleManager { get; set; }
         private readonly IEmailSender _EmailSender;
         private readonly IConfiguration _Configuration;
+        private readonly IWebHostEnvironment _Env; 
 
-        public AccountController(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
+        public AccountController(DatabaseContext databaseContext, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
         {
             _DatabaseContext = databaseContext;
             _SignInManager = signInManager;
@@ -42,7 +45,44 @@ namespace BankApplication.Web.Controllers
             _RoleManager = roleManager;
             _EmailSender = emailSender;
             _Configuration = configuration;
+            _Env = env;
         }
+        //formData
+        [HttpPost]
+        [Route("register-form")]
+        public async Task<IActionResult> RegisterAccountForm( IFormFile Image)   
+        {
+            var httpRequest = Request.Form;
+            var postedFile = httpRequest.Files[0];
+            string filename = postedFile.FileName;
+            var physicalPath = _Env.ContentRootPath + "/wwwroot/Photos/" + filename;
+
+            using (var stream = new FileStream(physicalPath, FileMode.Create))
+            {
+                postedFile.CopyTo(stream);
+            }
+            //var formDataReg = regModel.Image;
+            return Ok();
+        }
+
+
+        //private string UploadedFile(RegistrationDto model)
+        //{
+        //    string uniqueFileName = null;
+
+        //    if (model.Image != null)
+        //    {
+        //        string uploadsFolder = Path.Combine(_Env.WebRootPath, "Photos");
+        //        uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Image.FileName;
+        //        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+        //        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        //        {
+        //            model.Image.CopyTo(fileStream);
+        //        }
+        //    }
+        //    return uniqueFileName;
+        //}
+
         //admin acccount create
         [HttpPost]
         [Route("register")]
@@ -80,6 +120,7 @@ namespace BankApplication.Web.Controllers
                 throw;
             }
         }
+
 
         [HttpPost]
         [Route("signin")]
@@ -335,6 +376,55 @@ namespace BankApplication.Web.Controllers
                 var res = await _RoleManager.CreateAsync(new IdentityRole<long>(roleName));
             }
         }
+
+        [HttpPost]
+        [Route("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            try
+            {
+                var user = await _UserManager.FindByEmailAsync(email); 
+                if (user == null)
+                    throw new Exception("Can't find user for this email");
+
+                var token = await _UserManager.GeneratePasswordResetTokenAsync(user);
+                token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                var resetPasswordUrl = $"{GetSiteBaseUrl()}/reset-password?email={user.Email}&token={token}";
+                var message = new Message(new string[] { user.Email }, "Password reset link", resetPasswordUrl);  
+                _EmailSender.SendEmail(message); 
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPassword model)
+        {
+            if (!ModelState.IsValid)
+                return Ok(model);
+
+            var user = await _UserManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return Ok("Can't find user for this email");
+
+            model.Token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            var resetPasswordResult = await _UserManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (!resetPasswordResult.Succeeded)
+            {
+                foreach (var error in resetPasswordResult.Errors)
+                    ModelState.AddModelError(error.Code, error.Description);
+                return Ok("Can't reset your password");
+            }
+
+            return Ok("Password reset successfull");
+        }
+
 
         private async Task<string> CreateTokenAsync(ApplicationUser user)
         {

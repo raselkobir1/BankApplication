@@ -90,6 +90,14 @@ signin(email, password) {
     });
   },
   
+  CustomerRegistrationFormSubmit(fd) {
+    return new Promise((resolve, reject) => {
+      Axios.post(ACCOUNT_API_ROOT + "/register-form",fd)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
+  
 }
 
 

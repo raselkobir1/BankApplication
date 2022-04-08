@@ -35,6 +35,9 @@ export default {
         return AccountAPI.customerTransactionHistory();
       },
 
+      CustomerRegistrationFormSubmit(fd) {
+        return AccountAPI.CustomerRegistrationFormSubmit(fd); 
+      }  
       
 }
 

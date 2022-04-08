@@ -2,7 +2,7 @@
   <div class="page page-login">
     <div class="row d-flex justify-content-center">
       <div class="col-6 text-center mb-5">
-        <form>
+        <form enctype="multipart/form-data">
           <h1 class="h3 mb-3 fw-normal">User Registration Form</h1>
           <div class="form-floating">
             <input
@@ -10,6 +10,7 @@
               v-model="email"
               class="form-control mb-2"
               id="floatingInput"
+              ref="email"
               placeholder="name@example.com"
             />
             <label for="floatingInput">Email address</label>
@@ -20,13 +21,16 @@
               type="password"
               v-model="password"
               class="form-control mb-2"
+              ref="password"
               id="floatingPassword"
               placeholder="password"
             />
             <label for="floatingPassword">password</label>
           </div>
-          <a class="btn btn-primary mb-5 mt-3" href="#" @click.prevent="onClickRegister" >Register</a >
+          <input type="file" ref="file" @change="onSelect"> <br> 
 
+          <a class="btn btn-primary mb-5 mt-3" href="#" @click.prevent="onClickRegister" >Register</a >
+          <button class="btn btn-primary mb-5 mt-3" @click.prevent="onSubmit">Submit image</button>
         </form>
       </div>
     </div>
@@ -42,12 +46,32 @@ export default {
     return {
       email: '',
       password: '',
+      file:null,
     };
   },
   mounted() {
     
   },
   methods: {
+    onSelect(event) {
+      //this.file = this.$refs.file.files[0];
+      this.file = event.target.files[0];
+      console.log("select image :",this.file );
+    },
+    onSubmit() {
+      const fd = new FormData();
+      fd.append('Image', this.file);
+        AccountService.CustomerRegistrationFormSubmit(fd)
+          .then((response) => {
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+              this.ClearInputField();
+          });
+    },
+
     async onClickRegister() {
         AccountService.CustomerRegistration(this.email, this.password)
           .then((response) => {
