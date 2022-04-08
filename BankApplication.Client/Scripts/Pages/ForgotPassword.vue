@@ -39,6 +39,7 @@ export default {
     async onClickForgotPassword() {
         AccountService.forgotPassword(this.email)
           .then((response) => {
+             this.$router.push({ name: "verifyEmail"});
           })
           .catch((error) => {
             console.log(error);

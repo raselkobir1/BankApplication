@@ -7,6 +7,7 @@ import Customer from "@scripts/Pages/Customer.vue";
 import Registration from "@scripts/Pages/Registration.vue";
 import ForgotPassword from "@scripts/Pages/ForgotPassword.vue";
 import ResetPassword from "@scripts/Pages/ResetPassword.vue";
+import VerifyEmail from "@scripts/Pages/VerifyEmail.vue";
 import ApplayBankAccount from "@scripts/Pages/ApplayBankAccount.vue";
 import Deposite from "@scripts/Pages/Deposite.vue";
 import Widthdrown from "@scripts/Pages/Widthdrown.vue";
@@ -30,6 +31,7 @@ let router = new Router({
                 { path: "registration", name:"registration", component:Registration },
                 { path: "forgotPassword", name:"forgotPassword", component:ForgotPassword },
                 { path: "resetPassword", name:"resetPassword", component:ResetPassword },
+                { path: "verifyEmail", name:"verifyEmail", component:VerifyEmail },
                 { path: "admin", name:"admin", component:Admin },
                 { path: "customer", name:"customer", component:Customer, 
                 redirect: { name: "transactionStatement" },
@@ -39,10 +41,8 @@ let router = new Router({
                         { path: "widthdrown", name:"widthdrown", component:Widthdrown },
                         { path: "transactionStatement", name:"transactionStatement", component:TransactionStatement },
                         { path: "vuexExample", name:"vuexExample", component:vuexExample },
-                        
                     ]
                 },
-
             ]
         }
     ]

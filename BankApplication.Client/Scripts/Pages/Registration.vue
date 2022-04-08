@@ -75,7 +75,7 @@ export default {
     async onClickRegister() {
         AccountService.CustomerRegistration(this.email, this.password)
           .then((response) => {
-            console.log("email and password:",this.email, this.password);
+            this.$router.push({ name: "verifyEmail"});
             console.log("Response data :", response.data);
           })
           .catch((error) => {
