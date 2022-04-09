@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -53,7 +52,7 @@ namespace BankApplication.Web.Controllers
             _Env = env;
             _ServiceManager = serviceManager;
         }
-        //--------------------study purpose----------------------------------
+        //--------------------this action method customer profile set currently not use (study purpose)----------------------------------
         [HttpPost]
         [Route("register-form")]
         public async Task<IActionResult> RegisterAccountForm( IFormFile Image)   
@@ -192,8 +191,6 @@ namespace BankApplication.Web.Controllers
             {
                 var accountList = _DatabaseContext.BankAccounts.ToList(); 
                 var users = _DatabaseContext.Users.ToList(); 
-
-                //var query = objEntities.Employee.Join(objEntities.Department, r => r.EmpId, p => p.EmpId, (r, p) => new { r.FirstName, r.LastName, p.DepartmentName });
                 var accounts = (from a in accountList
                                  join u in users on a.ApplicationUserId equals u.Id
                                  select new { UserName = u.UserName , AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, a.Id })
@@ -204,7 +201,7 @@ namespace BankApplication.Web.Controllers
             }
             catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -212,13 +209,7 @@ namespace BankApplication.Web.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public IActionResult ActivationCustomerAccount(long accountid) 
         {
-            var accounts = _DatabaseContext.BankAccounts.ToList();
-            var account = accounts.Where(a => a.Id == accountid).FirstOrDefault();
-            account.AccountStatus = true;
-
-            _DatabaseContext.Update(account);
-            _DatabaseContext.SaveChanges();
-
+            _ServiceManager.BankAccountService.ActivationCustomerAccount(accountid);
             return Ok("Customer account approved and Activated");
         }
 
@@ -226,13 +217,7 @@ namespace BankApplication.Web.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public IActionResult InactivationCustomerAccount(long accountid) 
         {
-            var accounts = _DatabaseContext.BankAccounts.ToList();
-            var account = accounts.Where(a => a.Id == accountid).FirstOrDefault();
-            account.AccountStatus = false;
-
-            _DatabaseContext.Update(account);
-            _DatabaseContext.SaveChanges();
-
+            _ServiceManager.BankAccountService.InActivationCustomerAccount(accountid);
             return Ok("Customer account Inactivated successfull");
         }
         [HttpGet]
@@ -241,10 +226,8 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                //ApplicationUser user = null;
-                //user = await _UserManager.GetUserAsync(HttpContext.User);
                 var user = await GetLoggedInUserAsync();
-                var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id && a.AccountStatus == true).ToList();
+                var accounts = _ServiceManager.BankAccountService.GetCurrentCustomerActiveAccount(false, user.Id);
                 return Ok(new { acclist = accounts });
             }
             catch (Exception e)

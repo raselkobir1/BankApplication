@@ -22,6 +22,7 @@ namespace Bank.Service.Implementation
         {
             _repositoryManager = repositoryManager;
         }
+
         public BankAccountDto CreateBankAccount(BankAccountDto bankAccountDto)
         {
             try
@@ -104,7 +105,7 @@ namespace Bank.Service.Implementation
         }
 
 
-        public IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges)
+        public IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges)    // need to  complete letter. after account service complete
         {
             var bankAccounts = _repositoryManager.BankAccount.GetAllBankAccounts(trackChanges);
             var accountList = new List<BankAccResponse>();
@@ -145,6 +146,13 @@ namespace Bank.Service.Implementation
             return balanceDto; //need balance responseDto
         }
 
+        public IEnumerable<BankAccount> GetCurrentCustomerActiveAccount(bool trackChanges, long loginUserId)
+        {
+            var accounts = _repositoryManager.BankAccount.GetAllBankAccounts(false).Where(a => a.ApplicationUserId == loginUserId && a.AccountStatus == true).ToList();
+            return accounts;
+
+        }
+
         public IEnumerable<TransactionHistoryResponse> GetCurrentCustomerTransactionHistoy(bool trackChanges, long loginUserId)  
         {
             try
@@ -162,6 +170,27 @@ namespace Bank.Service.Implementation
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        public void ActivationCustomerAccount(long accountid)
+        {
+            var accounts = _repositoryManager.BankAccount.GetAllBankAccounts(true).ToList();
+            var account = accounts.Where(a => a.Id == accountid).FirstOrDefault();
+            account.AccountStatus = true;
+
+            _repositoryManager.BankAccount.UpdateBankAccount(account);
+            _repositoryManager.SaveChange();
+
+        }
+
+        public void InActivationCustomerAccount(long accountid)
+        {
+            var accounts = _repositoryManager.BankAccount.GetAllBankAccounts(true).ToList();
+            var account = accounts.Where(a => a.Id == accountid).FirstOrDefault();
+            account.AccountStatus = false;
+
+            _repositoryManager.BankAccount.UpdateBankAccount(account);
+            _repositoryManager.SaveChange();
         }
     }
 }

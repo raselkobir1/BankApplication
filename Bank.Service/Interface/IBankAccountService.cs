@@ -1,10 +1,7 @@
-﻿using Bank.Service.ContractModels;
+﻿using Bank.Entity.Core;
+using Bank.Service.ContractModels;
 using Bank.Service.ContractModels.ResponseModel;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bank.Service.Interface
 {
@@ -15,6 +12,10 @@ namespace Bank.Service.Interface
         void CreateTransaction(BalanceDto balanceDto, long loginUserId);
         IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges);  
         IEnumerable<TransactionHistoryResponse> GetCurrentCustomerTransactionHistoy(bool trackChanges, long loginUserId);    
+        IEnumerable<BankAccount> GetCurrentCustomerActiveAccount(bool trackChanges, long loginUserId);
+        void ActivationCustomerAccount(long accountid);
+        void InActivationCustomerAccount(long accountid); 
+
 
 
     }

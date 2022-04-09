@@ -21,6 +21,11 @@ namespace Bank.Application.Repository.Implementation
         {
             return FindAll(trackChanges).ToList();
         }
+
+        public void UpdateBankAccount(BankAccount bankAccount)
+        {
+            Update(bankAccount);    
+        }
         //public Company GetCompany(Guid companyId, bool trackingChanges)
         //{
         //    return FindByCondition(c => c.Id.Equals(companyId), trackingChanges).SingleOrDefault();
