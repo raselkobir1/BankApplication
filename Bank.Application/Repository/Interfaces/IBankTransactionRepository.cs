@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Bank.Application.Repository.Interfaces
 {
-    public interface IBankAccRepository 
+    public interface IBankTransactionRepository
     {
-        IEnumerable<BankAccount> GetAllBankAccounts(bool trackChanges);  
-        void CreateBankAccount(BankAccount bankAccount); 
+        void CreateBankTransaction(Balance balanceTransaction);
+        IEnumerable<Balance> GetAllBalance(bool trackChanges);
     }
 }

@@ -8,7 +8,8 @@ namespace Bank.Application.Repository.Interfaces
 {
     public interface IRepositoryManager
     {
-        IBankAccRepository BankAccount { get; }    
+        IBankAccRepository BankAccount { get; }
+        IBankTransactionRepository BankTransaction { get; }
         void SaveChange();
     }
 }

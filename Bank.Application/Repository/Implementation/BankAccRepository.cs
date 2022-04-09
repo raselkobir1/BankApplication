@@ -1,6 +1,8 @@
 ﻿using Bank.Application.Repository.Implementation.Core;
 using Bank.Application.Repository.Interfaces;
 using Bank.Entity.Core;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bank.Application.Repository.Implementation
 {
@@ -15,11 +17,10 @@ namespace Bank.Application.Repository.Implementation
              Create(bankAccount);  
         }
 
-        //public IEnumerable<Company> GetAllCompanies(bool trackChanges)
-        //{
-        //    return FindAll(trackChanges).OrderBy(c => c.Name).ToList();
-        //}
-
+        public IEnumerable<BankAccount> GetAllBankAccounts(bool trackChanges)
+        {
+            return FindAll(trackChanges).ToList();
+        }
         //public Company GetCompany(Guid companyId, bool trackingChanges)
         //{
         //    return FindByCondition(c => c.Id.Equals(companyId), trackingChanges).SingleOrDefault();

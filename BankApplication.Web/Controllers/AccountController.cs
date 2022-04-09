@@ -111,7 +111,7 @@ namespace BankApplication.Web.Controllers
                     _EmailSender.SendEmail(message);
 
                     await RoleCreateIfNotExists();
-                    _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
+                    _UserManager.AddToRoleAsync(applicationUser, Roles.Administrator.ToString()).Wait();
                     _DatabaseContext.SaveChanges();
                     applicationUser = await _UserManager.FindByEmailAsync(email);
 
@@ -173,55 +173,13 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                //ApplicationUser user = null;
-                //user = await _UserManager.GetUserAsync(HttpContext.User);
                 var user = await GetLoggedInUserAsync();
-                var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id).ToList();
-                var currentUserAccount = accounts.FirstOrDefault(a => a.AccountNo == balanceDto.AccountNo);
-               
-
-                if (balanceDto.TransactionType == "Deposite")
-                {
-                    var currentBalance = currentUserAccount.OpeningBalance += balanceDto.DepositeAmount;
-                    var balance = new Balance()
-                    {
-                         BankAccountId = currentUserAccount.Id, 
-                         DepositeAmount = balanceDto.DepositeAmount,
-                         Id = 0,
-                         TotalAmount = currentBalance,
-                         TransactionDate =  DateTime.UtcNow,
-                         AccountNo = balanceDto.AccountNo,
-                         TransactionType = "Deposite"
-                    };
-                    _DatabaseContext.Add(balance);
-                    _DatabaseContext.SaveChanges();
-                }
-                else
-                {
-                    // if opening balance <= widthdrown amount = return please deposite your account first, you have not enough balance for widthdrown.
-                    //var currentBalance = currentUserAccount.OpeningBalance -= balanceDto.WidthrownAmount;
-                    var accBalance = _DatabaseContext.Balances.FirstOrDefault(b => b.BankAccountId == currentUserAccount.Id);   
-                    var totalBalance = accBalance.TotalAmount - balanceDto.WidthrownAmount;
-
-                    var balance = new Balance()
-                    {
-                        BankAccountId = currentUserAccount.Id,
-                        WidthrownAmount = balanceDto.WidthrownAmount,
-                        Id = 0,
-                        TotalAmount = totalBalance, 
-                        TransactionDate = DateTime.UtcNow,
-                        AccountNo = balanceDto.AccountNo,
-                        TransactionType = "Widthdrown"
-                    };
-                    _DatabaseContext.Add(balance);
-                    _DatabaseContext.SaveChanges();
-                }
-                return Ok();
+                _ServiceManager.BankAccountService.CreateTransaction(balanceDto, user.Id);
+                return Ok("Transaction successfully");
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
-
-                throw;
+                throw new Exception(e.Message);
             }
             
         }
@@ -452,3 +410,10 @@ namespace BankApplication.Web.Controllers
         }
     }
 }
+
+
+
+
+
+//ApplicationUser user = null;
+//user = await _UserManager.GetUserAsync(HttpContext.User);

@@ -9,6 +9,10 @@ namespace Bank.Service.Interface
 {
     public interface IBankAccountService
     {
+        IEnumerable<BankAccountDto> GetAllBankAccounts(bool trackChanges); 
         BankAccountDto CreateBankAccount(BankAccountDto bankAccountDto);
+        void CreateTransaction(BalanceDto balanceDto, long loginUserId);
+        IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges);  
+
     }
 }
