@@ -28,7 +28,7 @@ namespace EmailService
             emailMessage.From.Add(new MailboxAddress(_emailConfig.From));
             emailMessage.To.AddRange(message.To);
             emailMessage.Subject = message.Subject;
-            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = string.Format("<a class='btn btn-primary' href='{0}' style='border: 1px solid #1f8ef8; color: #fff; display: block; padding: 10px 15px; background-color: #1f8ef8; border-radius: 25px !important; max-width: 150px;'> confirm your account </a>", message.Content) };
+            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = string.Format("<a class='btn btn-primary' href='{0}' style='border: 1px solid #1f8ef8; color: #fff; display: block; padding: 10px 15px; background-color: #1f8ef8; border-radius: 25px !important; max-width: 150px;'> {1} </a>", message.Content, message.Subject) };
             return emailMessage;
         }
         private void Send(MimeMessage mailMessage)

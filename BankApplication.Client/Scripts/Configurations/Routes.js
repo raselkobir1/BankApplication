@@ -6,6 +6,7 @@ import Admin from "@scripts/Pages/Admin.vue";
 import Customer from "@scripts/Pages/Customer.vue";
 import Registration from "@scripts/Pages/Registration.vue";
 import ForgotPassword from "@scripts/Pages/ForgotPassword.vue";
+import AfterPassReset from "@scripts/Pages/AfterPassReset.vue";
 import ResetPassword from "@scripts/Pages/ResetPassword.vue";
 import VerifyEmail from "@scripts/Pages/VerifyEmail.vue";
 import ApplayBankAccount from "@scripts/Pages/ApplayBankAccount.vue";
@@ -31,6 +32,7 @@ let router = new Router({
                 { path: "registration", name:"registration", component:Registration },
                 { path: "forgotPassword", name:"forgotPassword", component:ForgotPassword },
                 { path: "resetPassword", name:"resetPassword", component:ResetPassword },
+                { path: "afterPassReset", name:"afterPassReset", component:AfterPassReset },
                 { path: "verifyEmail", name:"verifyEmail", component:VerifyEmail },
                 { path: "admin", name:"admin", component:Admin },
                 { path: "customer", name:"customer", component:Customer, 

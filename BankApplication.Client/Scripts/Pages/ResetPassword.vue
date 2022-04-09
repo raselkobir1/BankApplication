@@ -1,7 +1,7 @@
 <template>
   <div class="page page-resetpassword">
     <div class="row d-flex justify-content-center">
-      <div class="col-3 text-center">
+      <div class="col-3 text-center mt-5">
         <form>
           <h1 class="h3 mb-3 fw-normal">Input your information</h1>
           <div class="form-floating">
@@ -57,6 +57,7 @@ export default {
         }
         AccountService.resetPassword(model)
           .then((response) => {
+            this.$router.push({ name: "afterPassReset"});
           })
           .catch((error) => {
             console.log(error);

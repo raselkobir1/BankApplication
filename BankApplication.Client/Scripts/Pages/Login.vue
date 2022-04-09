@@ -30,16 +30,16 @@
             />
             <label for="floatingPassword">password</label>
           </div>
-          <!-- <div class="checkbox mb-3">
+          <div class="checkbox mb-3">
             <label>
               <input type="checkbox" value="remember-me" />Remember me
             </label>
-          </div> -->
+              <a href="#" @click.prevent="onForgotPassword" >Forgot password</a >
+          </div>
           <button @click.prevent="onSignin" class="w-100 btn btn-lg btn-primary mb-2"  type="button">
             Sign in
           </button>
           <a href="#" @click.prevent="onClickRegistration" >Register your account</a >
-          <a href="#" @click.prevent="onForgotPassword" >Forgot password</a >
 
           <p class="mt-5 mb-3 text-muted">&copy; 2021-2022</p>
         </form>

@@ -27,10 +27,10 @@
             />
             <label for="floatingPassword">password</label>
           </div>
-          <input type="file" ref="file" @change="onSelect"> <br> 
+          <!-- <input type="file" ref="file" @change="onSelect"> <br>  -->
 
           <a class="btn btn-primary mb-5 mt-3" href="#" @click.prevent="onClickRegister" >Register</a >
-          <button class="btn btn-primary mb-5 mt-3" @click.prevent="onSubmit">Submit image</button>
+          <!-- <button class="btn btn-primary mb-5 mt-3" @click.prevent="onSubmit">Submit image</button> -->
         </form>
       </div>
     </div>
