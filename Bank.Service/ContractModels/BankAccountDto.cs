@@ -1,4 +1,10 @@
-﻿namespace BankApplication.Web.ContractModels
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Bank.Service.ContractModels
 {
     public class BankAccountDto
     {
@@ -7,6 +13,6 @@
         public double OpeningBalance { get; set; }
         public string AccountType { get; set; }
         public string Brance { get; set; }
-        public string Accholder { get; set; } 
+        public string Accholder { get; set; }
     }
 }

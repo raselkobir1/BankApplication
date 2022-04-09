@@ -1,4 +1,9 @@
-using BankApplication.Web.Models;
+using Bank.Application;
+using Bank.Application.Repository.Implementation;
+using Bank.Application.Repository.Interfaces;
+using Bank.Entity.Core;
+using Bank.Service.Implementation;
+using Bank.Service.Interface;
 using EmailService;
 using EmailService.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,11 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BankApplication.Web
 {
@@ -46,6 +47,9 @@ namespace BankApplication.Web
                     Options.MigrationsAssembly("BankApplication.Web");
                 });
             });
+
+            services.AddScoped<IRepositoryManager, RepositoryManager>();
+            services.AddScoped<IServiceManager, ServiceManager>();
 
             services.AddIdentity<ApplicationUser, IdentityRole<long>>()
                 .AddEntityFrameworkStores<DatabaseContext>()

@@ -1,5 +1,8 @@
-﻿using BankApplication.Web.ContractModels;
-using BankApplication.Web.Models;
+﻿using Bank.Application;
+using Bank.Entity.Core;
+using Bank.Service.ContractModels;
+using Bank.Service.Interface;
+using BankApplication.Web.ContractModels;
 using EmailService;
 using EmailService.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -34,9 +37,11 @@ namespace BankApplication.Web.Controllers
         private RoleManager<IdentityRole<long>> _RoleManager { get; set; }
         private readonly IEmailSender _EmailSender;
         private readonly IConfiguration _Configuration;
-        private readonly IWebHostEnvironment _Env; 
+        private readonly IWebHostEnvironment _Env;
 
-        public AccountController(DatabaseContext databaseContext, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
+        private readonly IServiceManager _ServiceManager;
+
+        public AccountController(DatabaseContext databaseContext, IServiceManager serviceManager, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
         {
             _DatabaseContext = databaseContext;
             _SignInManager = signInManager;
@@ -46,6 +51,7 @@ namespace BankApplication.Web.Controllers
             _EmailSender = emailSender;
             _Configuration = configuration;
             _Env = env;
+            _ServiceManager = serviceManager;
         }
         //--------------------study purpose----------------------------------
         [HttpPost]
@@ -149,29 +155,10 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                //if (HttpContext.User.Identity.IsAuthenticated)
                 var user = await GetLoggedInUserAsync();
-                if (user != null)
-                {
-                    //user = await _UserManager.GetUserAsync(HttpContext.User);
-                    Random rnd = new Random();
-                    int accNumber = rnd.Next(100, 5000);  
-
-                    var bankAccount = new BankAccount()
-                    {
-                         Id = bankAccountDto.Id,
-                         ApplicationUserId = user.Id,
-                         AccountNo = "Acc-"+accNumber.ToString(),
-                         AccountStatus = false,
-                         AccountType = bankAccountDto.AccountType,
-                         OpeningBalance = bankAccountDto.OpeningBalance,
-                    };
-
-                    _DatabaseContext.Add(bankAccount);
-                    _DatabaseContext.SaveChanges();
-                    return Ok(new { bankaccount = bankAccount });
-                }
-                return Ok("User is not Verified");
+                bankAccountDto.ApplicationUserId = user.Id;
+               var id = _ServiceManager.BankAccountService.CreateBankAccount(bankAccountDto);
+                return Ok(new { bankId = id } );
             }
             catch (System.Exception e)
             {
