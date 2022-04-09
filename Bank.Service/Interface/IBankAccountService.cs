@@ -1,4 +1,5 @@
 ﻿using Bank.Service.ContractModels;
+using Bank.Service.ContractModels.ResponseModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,12 @@ namespace Bank.Service.Interface
 {
     public interface IBankAccountService
     {
-        IEnumerable<BankAccountDto> GetAllBankAccounts(bool trackChanges); 
+        IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges);  
         BankAccountDto CreateBankAccount(BankAccountDto bankAccountDto);
         void CreateTransaction(BalanceDto balanceDto, long loginUserId);
         IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges);  
+        IEnumerable<TransactionHistoryResponse> GetCurrentCustomerTransactionHistoy(bool trackChanges, long loginUserId);    
+
 
     }
 }

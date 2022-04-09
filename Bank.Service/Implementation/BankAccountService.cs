@@ -1,6 +1,8 @@
-﻿using Bank.Application.Repository.Interfaces;
+﻿using Bank.Application;
+using Bank.Application.Repository.Interfaces;
 using Bank.Entity.Core;
 using Bank.Service.ContractModels;
+using Bank.Service.ContractModels.ResponseModel;
 using Bank.Service.Interface;
 using System;
 using System.Collections.Generic;
@@ -101,26 +103,30 @@ namespace Bank.Service.Implementation
             }
         }
 
-        public IEnumerable<BankAccountDto> GetAllBankAccounts(bool trackChanges)
+
+        public IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges)
         {
             var bankAccounts = _repositoryManager.BankAccount.GetAllBankAccounts(trackChanges);
-
-            var bankAccountsDto = new List<BankAccountDto>();
-           
-            foreach (var bankAcc in bankAccounts) 
+            var accountList = new List<BankAccResponse>();
+            foreach (var bankAcc in bankAccounts)
             {
-                var bankAccount = new BankAccountDto()
+                var bankAccount = new BankAccResponse()
                 {
-                     Id = bankAcc.Id,
-                     ApplicationUserId = bankAcc.ApplicationUserId,
-                     AccountType = bankAcc.AccountType,
-                     OpeningBalance = bankAcc.OpeningBalance,
-                     AccountStatus = bankAcc.AccountStatus,
-                     AccountNo = bankAcc.AccountNo
+                    Id = bankAcc.Id,
+                    ApplicationUserId = bankAcc.ApplicationUserId,
+                    AccountType = bankAcc.AccountType,
+                    OpeningBalance = bankAcc.OpeningBalance,
+                    AccountStatus = bankAcc.AccountStatus,
+                    AccountNo = bankAcc.AccountNo
                 };
-                bankAccountsDto.Add(bankAccount);
+                accountList.Add(bankAccount);
             }
-            return bankAccountsDto;
+            //var users = _DatabaseContext.Users.ToList();
+            //var accounts = (from a in accountList
+            //                join u in users on a.ApplicationUserId equals u.Id
+            //                select new BankAccResponse { UserName = u.UserName, AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, Id = a.Id })
+            //                .ToList();
+            return accountList;
         }
 
         public IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges)
@@ -137,6 +143,25 @@ namespace Bank.Service.Implementation
                 balanceDto.Add(balance);
             }
             return balanceDto; //need balance responseDto
+        }
+
+        public IEnumerable<TransactionHistoryResponse> GetCurrentCustomerTransactionHistoy(bool trackChanges, long loginUserId)  
+        {
+            try
+            {
+                var accounts = _repositoryManager.BankAccount.GetAllBankAccounts(false).Where(a => a.ApplicationUserId == loginUserId && a.AccountStatus == true).ToList();
+                var balanceStatement = _repositoryManager.BankTransaction.GetAllBalance(false).ToList();
+
+                var finalList = (from a in accounts
+                                 join bs in balanceStatement on a.Id equals bs.BankAccountId
+                                 select new TransactionHistoryResponse { AccType = a.AccountType, AccNo = bs.AccountNo, Deposite = bs.DepositeAmount, Widthdrown = bs.WidthrownAmount, Balance = bs.TotalAmount, Date = bs.TransactionDate })
+                                .ToList();
+                return finalList;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }

@@ -111,7 +111,7 @@ namespace BankApplication.Web.Controllers
                     _EmailSender.SendEmail(message);
 
                     await RoleCreateIfNotExists();
-                    _UserManager.AddToRoleAsync(applicationUser, Roles.Administrator.ToString()).Wait();
+                    _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
                     _DatabaseContext.SaveChanges();
                     applicationUser = await _UserManager.FindByEmailAsync(email);
 
@@ -261,21 +261,13 @@ namespace BankApplication.Web.Controllers
             try
             {
                 var user = await GetLoggedInUserAsync();
-                var accounts = _DatabaseContext.BankAccounts.Where(a => a.ApplicationUserId == user.Id && a.AccountStatus == true).ToList();
-                var balanceStatement = _DatabaseContext.Balances.ToList();
-                
-                var finalList = (from a in accounts
-                                 join bs in balanceStatement on a.Id equals bs.BankAccountId
-                                 select new { AccType = a.AccountType, AccNo = bs.AccountNo, Deposite = bs.DepositeAmount, Widthdrown = bs.WidthrownAmount, Balance =bs.TotalAmount , Date=bs.TransactionDate })
-                                .ToList(); 
-
+                var finalList = _ServiceManager.BankAccountService.GetCurrentCustomerTransactionHistoy(false, user.Id);
                 return Ok(new { transactions = finalList });  
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
-
         }
 
         [HttpPost]
