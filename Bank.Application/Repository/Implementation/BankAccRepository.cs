@@ -21,7 +21,6 @@ namespace Bank.Application.Repository.Implementation
         {
             return FindAll(trackChanges).ToList();
         }
-
         public void UpdateBankAccount(BankAccount bankAccount)
         {
             Update(bankAccount);    

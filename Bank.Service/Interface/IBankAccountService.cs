@@ -14,9 +14,6 @@ namespace Bank.Service.Interface
         IEnumerable<TransactionHistoryResponse> GetCurrentCustomerTransactionHistoy(bool trackChanges, long loginUserId);    
         IEnumerable<BankAccount> GetCurrentCustomerActiveAccount(bool trackChanges, long loginUserId);
         void ActivationCustomerAccount(long accountid);
-        void InActivationCustomerAccount(long accountid); 
-
-
-
+        void InActivationCustomerAccount(long accountid);
     }
 }

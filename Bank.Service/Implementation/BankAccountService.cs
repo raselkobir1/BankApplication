@@ -105,7 +105,7 @@ namespace Bank.Service.Implementation
         }
 
 
-        public IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges)    // need to  complete letter. after account service complete
+        public IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges)
         {
             var bankAccounts = _repositoryManager.BankAccount.GetAllBankAccounts(trackChanges);
             var accountList = new List<BankAccResponse>();
@@ -122,11 +122,11 @@ namespace Bank.Service.Implementation
                 };
                 accountList.Add(bankAccount);
             }
-            //var users = _DatabaseContext.Users.ToList();
-            //var accounts = (from a in accountList
-            //                join u in users on a.ApplicationUserId equals u.Id
-            //                select new BankAccResponse { UserName = u.UserName, AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, Id = a.Id })
-            //                .ToList();
+            var users = _repositoryManager.AuthinticationRepository.GetApplicationUsers(false).ToList();
+            var accounts = (from a in accountList
+                            join u in users on a.ApplicationUserId equals u.Id
+                            select new BankAccResponse { UserName = u.UserName, AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, Id = a.Id })
+                            .ToList();
             return accountList;
         }
 

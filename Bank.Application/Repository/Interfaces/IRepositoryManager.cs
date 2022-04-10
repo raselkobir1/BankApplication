@@ -10,6 +10,7 @@ namespace Bank.Application.Repository.Interfaces
     {
         IBankAccRepository BankAccount { get; }
         IBankTransactionRepository BankTransaction { get; }
+        IAuthinticationRepository AuthinticationRepository { get; } 
         void SaveChange();
     }
 }

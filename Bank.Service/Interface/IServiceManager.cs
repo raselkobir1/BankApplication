@@ -8,6 +8,7 @@ namespace Bank.Service.Interface
 {
     public interface IServiceManager
     {
-        IBankAccountService BankAccountService { get; } 
+        IBankAccountService BankAccountService { get; }
+        IAuthinticationService AuthinticationService { get; }   
     }
 }

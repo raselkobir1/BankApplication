@@ -125,7 +125,6 @@ namespace BankApplication.Web.Controllers
             }
         }
 
-
         [HttpPost]
         [Route("signin")]
         [AllowAnonymous]
@@ -146,6 +145,71 @@ namespace BankApplication.Web.Controllers
                 token = await CreateTokenAsync(user)
             });
         }
+
+        [HttpPost]
+        [Route("signout")]
+        public async Task<IActionResult> SignOutAccount()
+        {
+            try
+            {
+                await _SignInManager.SignOutAsync();
+                return Ok("Sign out user");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Route("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            try
+            {
+                var user = await _UserManager.FindByEmailAsync(email);
+                if (user == null)
+                    throw new Exception("Can't find user for this email");
+
+                var token = await _UserManager.GeneratePasswordResetTokenAsync(user);
+                token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                var resetPasswordUrl = $"{GetSiteBaseUrl()}/resetPassword?email={user.Email}&token={token}";
+                var message = new Message(new string[] { user.Email }, "Password reset link", resetPasswordUrl);
+                _EmailSender.SendEmail(message);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPassword model)
+        {
+            if (!ModelState.IsValid)
+                return Ok(model);
+
+            var user = await _UserManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return Ok("Can't find user for this email");
+
+            model.Token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            var resetPasswordResult = await _UserManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (!resetPasswordResult.Succeeded)
+            {
+                foreach (var error in resetPasswordResult.Errors)
+                    ModelState.AddModelError(error.Code, error.Description);
+                return Ok("Can't reset your password");
+            }
+
+            return Ok("Password reset successfull");
+        }
+
+
 
         // customer applay for a bank account  
         [HttpPost]
@@ -189,14 +253,7 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                var accountList = _DatabaseContext.BankAccounts.ToList(); 
-                var users = _DatabaseContext.Users.ToList(); 
-                var accounts = (from a in accountList
-                                 join u in users on a.ApplicationUserId equals u.Id
-                                 select new { UserName = u.UserName , AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, a.Id })
-                                .ToList(); 
-
-
+                var accounts = _ServiceManager.BankAccountService.GetAllBankAccounts(false);
                 return Ok(new {accounts = accounts }); 
             }
             catch (Exception e)
@@ -253,20 +310,6 @@ namespace BankApplication.Web.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("signout")]
-        public async Task<IActionResult> SignOutAccount() 
-        {
-            try
-            {
-                await _SignInManager.SignOutAsync();
-                return Ok("Sign out user");
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
 
         [HttpGet("app-context")]
         public async Task<IActionResult> GetApplicationContext()
@@ -281,7 +324,6 @@ namespace BankApplication.Web.Controllers
             return Ok(new { user = user, role = role });
         }
 
-
         private async Task RoleCreateIfNotExists()  
         {
             var adminRole = "Administrator";
@@ -295,55 +337,6 @@ namespace BankApplication.Web.Controllers
                 var res = await _RoleManager.CreateAsync(new IdentityRole<long>(roleName));
             }
         }
-
-        [HttpPost]
-        [Route("forgot-password")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ForgotPassword(string email)
-        {
-            try
-            {
-                var user = await _UserManager.FindByEmailAsync(email); 
-                if (user == null)
-                    throw new Exception("Can't find user for this email");
-
-                var token = await _UserManager.GeneratePasswordResetTokenAsync(user);
-                token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                var resetPasswordUrl = $"{GetSiteBaseUrl()}/resetPassword?email={user.Email}&token={token}";
-                var message = new Message(new string[] { user.Email }, "Password reset link", resetPasswordUrl);  
-                _EmailSender.SendEmail(message); 
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("reset-password")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ResetPassword(ResetPassword model)
-        {
-            if (!ModelState.IsValid)
-                return Ok(model);
-
-            var user = await _UserManager.FindByEmailAsync(model.Email);
-            if (user == null)
-                return Ok("Can't find user for this email");
-
-            model.Token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
-            var resetPasswordResult = await _UserManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-            if (!resetPasswordResult.Succeeded)
-            {
-                foreach (var error in resetPasswordResult.Errors)
-                    ModelState.AddModelError(error.Code, error.Description);
-                return Ok("Can't reset your password");
-            }
-
-            return Ok("Password reset successfull");
-        }
-
 
         private async Task<string> CreateTokenAsync(ApplicationUser user)
         {

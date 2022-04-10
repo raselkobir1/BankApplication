@@ -11,6 +11,6 @@ namespace Bank.Application.Repository.Interfaces
     {
         IEnumerable<BankAccount> GetAllBankAccounts(bool trackChanges);  
         void CreateBankAccount(BankAccount bankAccount); 
-        void UpdateBankAccount(BankAccount bankAccount);  
+        void UpdateBankAccount(BankAccount bankAccount);
     }
 }
