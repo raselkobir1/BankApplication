@@ -101,7 +101,7 @@ namespace BankApplication.Web
             //swager configuration for JWT Bearer Token
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BankApplication.Web", Version = "v1" , Description = "JWT authentication with swagger in asp.net 5" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BankApplication.Web", Version = "v1" , Description = "JWT authorization with swagger in asp.net core 5" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",

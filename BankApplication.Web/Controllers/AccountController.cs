@@ -1,8 +1,5 @@
 ﻿using Bank.Entity.Core;
 using Bank.Service;
-using Bank.Service.ContractModels;
-using Bank.Service.Interface;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,60 +28,22 @@ namespace BankApplication.Web.Controllers
         private readonly IWebHostEnvironment _Env;
         private readonly IdentityServices _IdentityServices; 
 
-        private readonly IServiceManager _ServiceManager;
-
-        public AccountController(IdentityServices identityServices, IServiceManager serviceManager, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AccountController(IdentityServices identityServices, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _SignInManager = signInManager;
             _UserManager = userManager;
             _Configuration = configuration;
             _Env = env;
-            _ServiceManager = serviceManager;
             _IdentityServices = identityServices;
         }
-        //--------------------this action method customer profile set currently not use (study purpose)------
-        [HttpPost]
-        [Route("register-form")]
-        public IActionResult RegisterAccountForm( IFormFile Image)   
-        {
-            var httpRequest = Request.Form;
-            var postedFile = httpRequest.Files[0];
-            string filename = postedFile.FileName;
-            var physicalPath = _Env.ContentRootPath + "/wwwroot/Photos/" + filename;
-
-            using (var stream = new FileStream(physicalPath, FileMode.Create))
-            {
-                postedFile.CopyTo(stream);
-            }
-            //var formDataReg = regModel.Image;
-            return Ok();
-        }
-        //private string UploadedFile(RegistrationDto model)
-        //{
-        //    string uniqueFileName = null;
-
-        //    if (model.Image != null)
-        //    {
-        //        string uploadsFolder = Path.Combine(_Env.WebRootPath, "Photos");
-        //        uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Image.FileName;
-        //        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-        //        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        //        {
-        //            model.Image.CopyTo(fileStream);
-        //        }
-        //    }
-        //    return uniqueFileName;
-        //}
-
-        //admin or customer acccount create
-
+       
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> RegisterAccount(string email, string password)  
+        public async Task<IActionResult> RegisterAccount(string email, string password, bool role)  
         {
             try
             {
-               var applicationUser =  await _IdentityServices.RegisterAccount(email, password);
+               var applicationUser =  await _IdentityServices.RegisterAccount(email, password, role);
                 return Ok(new { appuser = applicationUser });
             }
             catch (System.Exception e)
@@ -156,105 +115,41 @@ namespace BankApplication.Web.Controllers
             return Ok("Password reset successfull");
         }
 
-
-        // customer applay for a bank account  
+        //--------------------This action method use for customer profile, currently not use (study purpose)------
         [HttpPost]
-        [Route("bankaccount-create")]
-        public async Task <IActionResult> CustomerBankAccountCreate([FromBody] BankAccountDto bankAccountDto)   
+        [Route("register-form")]
+        public IActionResult RegisterAccountForm(IFormFile Image)
         {
-            try
-            {
-                var user = await GetLoggedInUserAsync();
-                bankAccountDto.ApplicationUserId = user.Id;
-               var id = _ServiceManager.BankAccountService.CreateBankAccount(bankAccountDto);
-                return Ok(new { bankId = id } );
-            }
-            catch (System.Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
+            var httpRequest = Request.Form;
+            var postedFile = httpRequest.Files[0];
+            string filename = postedFile.FileName;
+            var physicalPath = _Env.ContentRootPath + "/wwwroot/Photos/" + filename;
 
-        [HttpPost]
-        [Route("transaction")]
-        public async Task<IActionResult> TransactionBalance([FromBody] BalanceDto balanceDto) 
-        {
-            try
+            using (var stream = new FileStream(physicalPath, FileMode.Create))
             {
-                var user = await GetLoggedInUserAsync();
-                _ServiceManager.BankAccountService.CreateTransaction(balanceDto, user.Id);
-                return Ok("Transaction successfully");
+                postedFile.CopyTo(stream);
             }
-            catch (System.Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-            
+            //var formDataReg = regModel.Image;
+            return Ok();
         }
+        //private string UploadedFile(RegistrationDto model)
+        //{
+        //    string uniqueFileName = null;
 
-        [HttpGet("get-accounts")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = "Administrator")]
-        public IActionResult CustomerBankAccounts()
-        {
-            try
-            {
-                var accounts = _ServiceManager.BankAccountService.GetAllBankAccounts(false);
-                return Ok(new {accounts = accounts }); 
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
+        //    if (model.Image != null)
+        //    {
+        //        string uploadsFolder = Path.Combine(_Env.WebRootPath, "Photos");
+        //        uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Image.FileName;
+        //        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+        //        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        //        {
+        //            model.Image.CopyTo(fileStream);
+        //        }
+        //    }
+        //    return uniqueFileName;
+        //}
 
-        [HttpPut("active-account")] 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public IActionResult ActivationCustomerAccount(long accountid) 
-        {
-            _ServiceManager.BankAccountService.ActivationCustomerAccount(accountid);
-            return Ok("Customer account approved and Activated");
-        }
-
-        [HttpPut("inactive-account")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public IActionResult InactivationCustomerAccount(long accountid) 
-        {
-            _ServiceManager.BankAccountService.InActivationCustomerAccount(accountid);
-            return Ok("Customer account Inactivated successfull");
-        }
-        [HttpGet]
-        [Route("active-acc-list")]
-        public async Task<IActionResult> GetLoginCustomerActiveAccount() 
-        {
-            try
-            {
-                var user = await GetLoggedInUserAsync();
-                var accounts = _ServiceManager.BankAccountService.GetCurrentCustomerActiveAccount(false, user.Id);
-                return Ok(new { acclist = accounts });
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-    
-        }
-
-        [HttpGet]
-        [Route("transaction-history")]
-        public async Task<IActionResult> GetLoginCustomerTransactionHistoy() 
-        {
-            try
-            {
-                var user = await GetLoggedInUserAsync();
-                var finalList = _ServiceManager.BankAccountService.GetCurrentCustomerTransactionHistoy(false, user.Id);
-                return Ok(new { transactions = finalList });  
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
+        //admin or customer acccount create
 
         [HttpGet("app-context")]
         public async Task<IActionResult> GetApplicationContext()
@@ -303,7 +198,6 @@ namespace BankApplication.Web.Controllers
         }
     }
 }
-
 
 
 

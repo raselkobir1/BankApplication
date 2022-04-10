@@ -6,10 +6,7 @@ using EmailService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,21 +20,18 @@ namespace Bank.Service
         private readonly IHttpContextAccessor _HttpContextAccessor;
         private RoleManager<IdentityRole<long>> _RoleManager { get; set; }
         private readonly IEmailSender _EmailSender;
-        private readonly IConfiguration _Configuration;
-        //private readonly IWebHostEnvironment _Env;
 
-        public IdentityServices(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
+        public IdentityServices(DatabaseContext databaseContext, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender)
         {
             _SignInManager = signInManager;
             _HttpContextAccessor = httpContextAccessor;
             _UserManager = userManager;
             _RoleManager = roleManager;
             _EmailSender = emailSender;
-            _Configuration = configuration;
             _DatabaseContext = databaseContext;
         }
 
-        public async Task<ApplicationUser> RegisterAccount(string email, string password)
+        public async Task<ApplicationUser> RegisterAccount(string email, string password, bool isAdmin) 
         {
             try
             {
@@ -46,19 +40,13 @@ namespace Bank.Service
                     throw new Exception("Already have an account for this email");
 
                 applicationUser = new ApplicationUser() { Email = email, UserName = email, BankId = 1, };
-
                 var result = await _UserManager.CreateAsync(applicationUser, password);
                 if (result.Succeeded)
                 {
-                    var token = await _UserManager.GenerateEmailConfirmationTokenAsync(applicationUser);
-                    token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                    var confirmationLink = $"{GetSiteBaseUrl()}/confirm-email?email={applicationUser.Email}&token={token}";
-                    var message = new Message(new string[] { applicationUser.Email }, "Registration Confirmation link", confirmationLink);
-                    _EmailSender.SendEmail(message);
-
+                    await SendMailForVerification(applicationUser);
                     await RoleCreateIfNotExists();
-                    _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
-                    _DatabaseContext.SaveChanges();
+                    await AddRoleToUser(isAdmin, applicationUser);
+                   
                     applicationUser = await _UserManager.FindByEmailAsync(email);
                     return applicationUser;
                 }
@@ -69,6 +57,43 @@ namespace Bank.Service
                 throw new Exception(e.Message);
             }
         }
+
+        private async Task<Task> SendMailForVerification(ApplicationUser applicationUser)
+        {
+            var token = await _UserManager.GenerateEmailConfirmationTokenAsync(applicationUser);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var confirmationLink = $"{GetSiteBaseUrl()}/confirm-email?email={applicationUser.Email}&token={token}";
+            var message = new Message(new string[] { applicationUser.Email }, "Registration Confirmation link", confirmationLink);
+            _EmailSender.SendEmail(message);
+            return Task.CompletedTask;
+        }
+        private async Task RoleCreateIfNotExists()
+        {
+            var adminRole = "Administrator";
+            if (!await _RoleManager.RoleExistsAsync(adminRole))
+            {
+                var res = await _RoleManager.CreateAsync(new IdentityRole<long>(adminRole));
+            }
+            var roleName = "Customer";
+            if (!await _RoleManager.RoleExistsAsync(roleName))
+            {
+                var res = await _RoleManager.CreateAsync(new IdentityRole<long>(roleName));
+            }
+        }
+        private Task AddRoleToUser(bool isAdmin, ApplicationUser applicationUser) 
+        {
+            if (isAdmin)
+            {
+                _UserManager.AddToRoleAsync(applicationUser, Roles.Administrator.ToString()).Wait();
+            }
+            else
+            {
+                _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
+            }
+            _DatabaseContext.SaveChanges();
+            return Task.CompletedTask;
+        }
+
         public async Task SignOutAccount()
         {
             try
@@ -113,20 +138,7 @@ namespace Bank.Service
                 throw new Exception("Can't reset your password");
             }
         }
-
-        private async Task RoleCreateIfNotExists()
-        {
-            var adminRole = "Administrator";
-            if (!await _RoleManager.RoleExistsAsync(adminRole))
-            {
-                var res = await _RoleManager.CreateAsync(new IdentityRole<long>(adminRole));
-            }
-            var roleName = "Customer";
-            if (!await _RoleManager.RoleExistsAsync(roleName))
-            {
-                var res = await _RoleManager.CreateAsync(new IdentityRole<long>(roleName));
-            }
-        }
+        
         private string GetSiteBaseUrl()
         {
             HttpRequest request = _HttpContextAccessor.HttpContext.Request;
