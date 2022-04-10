@@ -2,6 +2,7 @@ using Bank.Application;
 using Bank.Application.Repository.Implementation;
 using Bank.Application.Repository.Interfaces;
 using Bank.Entity.Core;
+using Bank.Service;
 using Bank.Service.Implementation;
 using Bank.Service.Interface;
 using EmailService;
@@ -50,6 +51,7 @@ namespace BankApplication.Web
 
             services.AddScoped<IRepositoryManager, RepositoryManager>();
             services.AddScoped<IServiceManager, ServiceManager>();
+            services.AddScoped<IdentityServices>();
 
             services.AddIdentity<ApplicationUser, IdentityRole<long>>()
                 .AddEntityFrameworkStores<DatabaseContext>()

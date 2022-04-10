@@ -1,5 +1,6 @@
 ﻿using Bank.Application;
 using Bank.Entity.Core;
+using Bank.Service;
 using Bank.Service.ContractModels;
 using Bank.Service.Interface;
 using BankApplication.Web.ContractModels;
@@ -37,10 +38,11 @@ namespace BankApplication.Web.Controllers
         private readonly IEmailSender _EmailSender;
         private readonly IConfiguration _Configuration;
         private readonly IWebHostEnvironment _Env;
+        private readonly IdentityServices _IdentityServices; 
 
         private readonly IServiceManager _ServiceManager;
 
-        public AccountController(DatabaseContext databaseContext, IServiceManager serviceManager, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
+        public AccountController(IdentityServices identityServices,DatabaseContext databaseContext, IServiceManager serviceManager, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
         {
             _DatabaseContext = databaseContext;
             _SignInManager = signInManager;
@@ -51,6 +53,7 @@ namespace BankApplication.Web.Controllers
             _Configuration = configuration;
             _Env = env;
             _ServiceManager = serviceManager;
+            _IdentityServices = identityServices;
         }
         //--------------------this action method customer profile set currently not use (study purpose)----------------------------------
         [HttpPost]
@@ -94,34 +97,12 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                ApplicationUser applicationUser = await _UserManager.FindByEmailAsync(email);
-                if (applicationUser != null)
-                    return Ok("Already have an account for this email");
-
-                  applicationUser = new ApplicationUser() { Email = email, UserName = email, BankId = 1, };
-               
-                var result = await _UserManager.CreateAsync(applicationUser, password);
-                if (result.Succeeded)
-                {
-                    var token = await _UserManager.GenerateEmailConfirmationTokenAsync(applicationUser);
-                    token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                    var confirmationLink = $"{GetSiteBaseUrl()}/confirm-email?email={applicationUser.Email}&token={token}";
-                    var message = new Message(new string[] { applicationUser.Email }, "Registration Confirmation link", confirmationLink); 
-                    _EmailSender.SendEmail(message);
-
-                    await RoleCreateIfNotExists();
-                    _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
-                    _DatabaseContext.SaveChanges();
-                    applicationUser = await _UserManager.FindByEmailAsync(email);
-
-                    return Ok(new { appuser = applicationUser }); 
-                }
-               
-                return Ok("Something want wrong...!!");
+               var applicationUser =  await _IdentityServices.RegisterAccount(email, password);
+                return Ok(new { appuser = applicationUser });
             }
             catch (System.Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
