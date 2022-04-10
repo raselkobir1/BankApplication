@@ -1,18 +1,13 @@
-﻿using Bank.Application;
-using Bank.Entity.Core;
+﻿using Bank.Entity.Core;
 using Bank.Service;
 using Bank.Service.ContractModels;
 using Bank.Service.Interface;
-using BankApplication.Web.ContractModels;
-using EmailService;
-using EmailService.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -30,35 +25,27 @@ namespace BankApplication.Web.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly DatabaseContext _DatabaseContext;
         private readonly SignInManager<ApplicationUser> _SignInManager;
         private UserManager<ApplicationUser> _UserManager { get; set; }
-        private readonly IHttpContextAccessor _HttpContextAccessor;
-        private RoleManager<IdentityRole<long>> _RoleManager { get; set; }
-        private readonly IEmailSender _EmailSender;
         private readonly IConfiguration _Configuration;
         private readonly IWebHostEnvironment _Env;
         private readonly IdentityServices _IdentityServices; 
 
         private readonly IServiceManager _ServiceManager;
 
-        public AccountController(IdentityServices identityServices,DatabaseContext databaseContext, IServiceManager serviceManager, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<long>> roleManager, IEmailSender emailSender, IConfiguration configuration)
+        public AccountController(IdentityServices identityServices, IServiceManager serviceManager, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
-            _DatabaseContext = databaseContext;
             _SignInManager = signInManager;
-            _HttpContextAccessor = httpContextAccessor; 
             _UserManager = userManager;
-            _RoleManager = roleManager;
-            _EmailSender = emailSender;
             _Configuration = configuration;
             _Env = env;
             _ServiceManager = serviceManager;
             _IdentityServices = identityServices;
         }
-        //--------------------this action method customer profile set currently not use (study purpose)----------------------------------
+        //--------------------this action method customer profile set currently not use (study purpose)------
         [HttpPost]
         [Route("register-form")]
-        public async Task<IActionResult> RegisterAccountForm( IFormFile Image)   
+        public IActionResult RegisterAccountForm( IFormFile Image)   
         {
             var httpRequest = Request.Form;
             var postedFile = httpRequest.Files[0];
@@ -72,7 +59,6 @@ namespace BankApplication.Web.Controllers
             //var formDataReg = regModel.Image;
             return Ok();
         }
-
         //private string UploadedFile(RegistrationDto model)
         //{
         //    string uniqueFileName = null;
@@ -91,6 +77,7 @@ namespace BankApplication.Web.Controllers
         //}
 
         //admin or customer acccount create
+
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> RegisterAccount(string email, string password)  
@@ -133,12 +120,12 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                await _SignInManager.SignOutAsync();
+                await _IdentityServices.SignOutAccount();
                 return Ok("Sign out user");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -149,15 +136,7 @@ namespace BankApplication.Web.Controllers
         {
             try
             {
-                var user = await _UserManager.FindByEmailAsync(email);
-                if (user == null)
-                    throw new Exception("Can't find user for this email");
-
-                var token = await _UserManager.GeneratePasswordResetTokenAsync(user);
-                token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                var resetPasswordUrl = $"{GetSiteBaseUrl()}/resetPassword?email={user.Email}&token={token}";
-                var message = new Message(new string[] { user.Email }, "Password reset link", resetPasswordUrl);
-                _EmailSender.SendEmail(message);
+                await _IdentityServices.ForgotPassword(email);
                 return Ok();
             }
             catch (Exception e)
@@ -173,23 +152,9 @@ namespace BankApplication.Web.Controllers
         {
             if (!ModelState.IsValid)
                 return Ok(model);
-
-            var user = await _UserManager.FindByEmailAsync(model.Email);
-            if (user == null)
-                return Ok("Can't find user for this email");
-
-            model.Token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
-            var resetPasswordResult = await _UserManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-            if (!resetPasswordResult.Succeeded)
-            {
-                foreach (var error in resetPasswordResult.Errors)
-                    ModelState.AddModelError(error.Code, error.Description);
-                return Ok("Can't reset your password");
-            }
-
+            await _IdentityServices.ResetPassword(model);
             return Ok("Password reset successfull");
         }
-
 
 
         // customer applay for a bank account  
@@ -209,7 +174,6 @@ namespace BankApplication.Web.Controllers
                 throw new Exception(e.Message);
             }
         }
-
 
         [HttpPost]
         [Route("transaction")]
@@ -297,26 +261,11 @@ namespace BankApplication.Web.Controllers
         {
             var user = await GetLoggedInUserAsync();
             string role = "";
-            //if (HttpContext.User.Identity.IsAuthenticated)
             if (user != null)
             {
                 role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
             }
             return Ok(new { user = user, role = role });
-        }
-
-        private async Task RoleCreateIfNotExists()  
-        {
-            var adminRole = "Administrator";
-            if (!await _RoleManager.RoleExistsAsync(adminRole))
-            {
-                var res = await _RoleManager.CreateAsync(new IdentityRole<long>(adminRole));
-            }
-            var roleName = "Customer";
-            if (!await _RoleManager.RoleExistsAsync(roleName))
-            {
-                var res = await _RoleManager.CreateAsync(new IdentityRole<long>(roleName));
-            }
         }
 
         private async Task<string> CreateTokenAsync(ApplicationUser user)
@@ -352,17 +301,12 @@ namespace BankApplication.Web.Controllers
             var loggedInUser = await _UserManager.FindByIdAsync(loggedInUserId);
             return loggedInUser;
         }
-        private string GetSiteBaseUrl()
-        {
-            HttpRequest request = _HttpContextAccessor.HttpContext.Request;
-            return $"{request.Scheme}://{request.Host}{request.PathBase}";
-        }
     }
 }
 
 
 
 
-
+//if (HttpContext.User.Identity.IsAuthenticated)
 //ApplicationUser user = null;
 //user = await _UserManager.GetUserAsync(HttpContext.User);

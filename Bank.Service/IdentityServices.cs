@@ -69,6 +69,50 @@ namespace Bank.Service
                 throw new Exception(e.Message);
             }
         }
+        public async Task SignOutAccount()
+        {
+            try
+            {
+                await _SignInManager.SignOutAsync();
+               
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        public async Task ForgotPassword(string email)
+        {
+            try
+            {
+                var user = await _UserManager.FindByEmailAsync(email);
+                if (user == null)
+                    throw new Exception("Can't find user for this email");
+
+                var token = await _UserManager.GeneratePasswordResetTokenAsync(user);
+                token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                var resetPasswordUrl = $"{GetSiteBaseUrl()}/resetPassword?email={user.Email}&token={token}";
+                var message = new Message(new string[] { user.Email }, "Password reset link", resetPasswordUrl);
+                _EmailSender.SendEmail(message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        public async Task ResetPassword(ResetPassword model)
+        {
+            var user = await _UserManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                throw new Exception("Can't find user for this email");
+
+            model.Token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            var resetPasswordResult = await _UserManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (!resetPasswordResult.Succeeded)
+            {
+                throw new Exception("Can't reset your password");
+            }
+        }
 
         private async Task RoleCreateIfNotExists()
         {
