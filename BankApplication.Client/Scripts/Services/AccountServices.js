@@ -12,8 +12,8 @@ export default {
       singOut() {
         return AccountAPI.signOut();
       },
-      CustomerRegistration(email, password) {
-        return AccountAPI.CustomerRegistration(email, password);
+      CustomerRegistration(email, password, role) {
+        return AccountAPI.CustomerRegistration(email, password, role);
       },
       customerApplayForAccount(accApplayModel) {
         return AccountAPI.customerApplayForAccount(accApplayModel);

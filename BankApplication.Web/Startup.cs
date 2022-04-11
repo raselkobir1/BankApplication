@@ -1,25 +1,24 @@
-using BankApplication.Web.Models;
-using EmailService;
-using EmailService.Models;
+using Bank.Application;
+using Bank.Application.Repository.Implementation;
+using Bank.Application.Repository.Interfaces;
+using Bank.Entity.Core;
+using Bank.Service;
+using Bank.Service.Implementation;
+using Bank.Service.Interface;
+using Bank.Utilities.EmailConfig;
+using Bank.Utilities.EmailConfig.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BankApplication.Web
 {
@@ -46,6 +45,10 @@ namespace BankApplication.Web
                     Options.MigrationsAssembly("BankApplication.Web");
                 });
             });
+
+            services.AddScoped<IRepositoryManager, RepositoryManager>();
+            services.AddScoped<IServiceManager, ServiceManager>();
+            services.AddScoped<IdentityServices>();
 
             services.AddIdentity<ApplicationUser, IdentityRole<long>>()
                 .AddEntityFrameworkStores<DatabaseContext>()
@@ -95,7 +98,7 @@ namespace BankApplication.Web
             //swager configuration for JWT Bearer Token
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BankApplication.Web", Version = "v1" , Description = "JWT authentication with swagger in asp.net 5" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BankApplication.Web", Version = "v1" , Description = "JWT authorization with swagger in asp.net core 5" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",

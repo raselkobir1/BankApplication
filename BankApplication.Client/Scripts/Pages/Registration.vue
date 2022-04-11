@@ -27,9 +27,15 @@
             />
             <label for="floatingPassword">password</label>
           </div>
+          <div class="">
+            <input class="form-check-input" v-model="role" type="checkbox" id="flexCheckIndeterminate">
+            <label class="form-check-label" for="flexCheckIndeterminate">
+              Is admin user
+            </label>
+        </div>
           <!-- <input type="file" ref="file" @change="onSelect"> <br>  -->
 
-          <a class="btn btn-primary mb-5 mt-3" href="#" @click.prevent="onClickRegister" >Register</a >
+          <a class="btn btn-primary mb-5 mt-3" href="#" @click.prevent="onClickRegister" >Register user</a >
           <!-- <button class="btn btn-primary mb-5 mt-3" @click.prevent="onSubmit">Submit image</button> -->
         </form>
       </div>
@@ -46,6 +52,7 @@ export default {
     return {
       email: '',
       password: '',
+      role: false,
       file:null,
     };
   },
@@ -73,7 +80,7 @@ export default {
     },
 
     async onClickRegister() {
-        AccountService.CustomerRegistration(this.email, this.password)
+        AccountService.CustomerRegistration(this.email, this.password, this.role)
           .then((response) => {
             this.$router.push({ name: "verifyEmail"});
             console.log("Response data :", response.data);

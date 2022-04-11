@@ -41,7 +41,10 @@
           </button>
           <a href="#" @click.prevent="onClickRegistration" >Register your account</a >
 
-          <p class="mt-5 mb-3 text-muted">&copy; 2021-2022</p>
+          <p class="mt-5 mb-3 text-muted">&copy;
+              <a :href="siteApi +'swagger/index.html'">view api documentation</a>
+          </p>
+
         </form>
       </div>
     </div>
@@ -58,6 +61,7 @@ export default {
     return {
       email: '',
       password: '',
+      siteApi:SITE_API_ROOT,
     };
   },
   mounted() {
