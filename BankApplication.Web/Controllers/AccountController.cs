@@ -1,5 +1,6 @@
 ﻿using Bank.Entity.Core;
 using Bank.Service;
+using Bank.Utilities.LoggerConfig;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -27,14 +28,16 @@ namespace BankApplication.Web.Controllers
         private readonly IConfiguration _Configuration;
         private readonly IWebHostEnvironment _Env;
         private readonly IdentityServices _IdentityServices; 
+        private readonly ILoggerManager _LoggerServices;  
 
-        public AccountController(IdentityServices identityServices, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AccountController(ILoggerManager loggerServices,IdentityServices identityServices, IWebHostEnvironment env, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _SignInManager = signInManager;
             _UserManager = userManager;
             _Configuration = configuration;
             _Env = env;
             _IdentityServices = identityServices;
+            _LoggerServices = loggerServices;
         }
        
         [HttpPost]
