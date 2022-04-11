@@ -1,8 +1,8 @@
 ﻿using Bank.Application;
 using Bank.Entity.Core;
 using Bank.Service.ContractModels;
-using EmailService;
-using EmailService.Models;
+using Bank.Utilities.EmailConfig;
+using Bank.Utilities.EmailConfig.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;

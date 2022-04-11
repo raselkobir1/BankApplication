@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bank.Application\Bank.Application.csproj" />
-    <ProjectReference Include="..\EmailService\EmailService.csproj" />
+    <ProjectReference Include="..\Bank.Utilities\Bank.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

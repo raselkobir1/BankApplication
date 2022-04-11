@@ -29,7 +29,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Bank.Entity\Bank.Entity.csproj" />
     <ProjectReference Include="..\Bank.Service\Bank.Service.csproj" />
-    <ProjectReference Include="..\EmailService\EmailService.csproj" />
   </ItemGroup>
 
 </Project>
