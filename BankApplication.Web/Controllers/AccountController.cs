@@ -1,5 +1,6 @@
 ﻿using Bank.Entity.Core;
 using Bank.Service;
+using Bank.Service.ContractModels.RequestModels;
 using Bank.Utilities.LoggerConfig;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -58,22 +59,25 @@ namespace BankApplication.Web.Controllers
         [HttpPost]
         [Route("signin")]
         [AllowAnonymous]
-        public async Task<IActionResult> SignIn(string email, string password)
+        public async Task<IActionResult> SignIn(string email, bool isRemembeMe, string password)
         {
-            var result = await _SignInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
+            var result = await _SignInManager.PasswordSignInAsync(email, password, isRemembeMe, lockoutOnFailure: false);
             ApplicationUser user = await _UserManager.FindByEmailAsync(email);
             var role = (await _UserManager.GetRolesAsync(user)).FirstOrDefault();
 
             if (!await _UserManager.IsEmailConfirmedAsync(user))
                 return Ok("Please confirm your email");
-
-            return Ok(new 
-            { 
-                AppUserId = user.Id,
-                userEmail = email,
-                role = role ,
-                token = await CreateTokenAsync(user)
-            });
+            if (result.Succeeded)
+            {
+                return Ok(new
+                {
+                    AppUserId = user.Id,
+                    userEmail = email,
+                    role = role,
+                    token = await CreateTokenAsync(user)
+                });
+            }
+            return Ok("Your email or password wrong!");
         }
 
         [HttpPost]
@@ -116,6 +120,18 @@ namespace BankApplication.Web.Controllers
                 return Ok(model);
             await _IdentityServices.ResetPassword(model);
             return Ok("Password reset successfull");
+        }
+
+        [HttpPost]
+        [Route("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePassword model)
+        {
+            var user = await GetLoggedInUserAsync();
+            if (user == null)
+                return Ok("Invalid user");
+            var result = await _IdentityServices.ChangePasswordAsync(model, user.Id);
+            return Ok("your password successfully changed");
         }
 
         //--------------------This action method use for customer profile, currently not use (study purpose)------

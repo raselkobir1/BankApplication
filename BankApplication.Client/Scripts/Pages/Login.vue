@@ -32,7 +32,7 @@
           </div>
           <div class="checkbox mb-3">
             <label>
-              <input type="checkbox" value="remember-me" />Remember me
+              <input type="checkbox" v-model="isRemembeMe" value="remember-me" />Remember me
             </label>
               <a href="#" @click.prevent="onForgotPassword" >Forgot password</a >
           </div>
@@ -61,6 +61,7 @@ export default {
     return {
       email: '',
       password: '',
+      isRemembeMe: false,
       siteApi:SITE_API_ROOT,
     };
   },
@@ -69,7 +70,7 @@ export default {
   },
   methods: {
     async onSignin() {
-        AccountService.singin(this.email, this.password)
+        AccountService.singin(this.email,this.isRemembeMe, this.password)
           .then((response) => {
             console.log("login Response data -:", response.data);
             Store.setLoggedinUser(response.data);

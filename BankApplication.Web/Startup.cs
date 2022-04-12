@@ -150,6 +150,7 @@ namespace BankApplication.Web
             {
                 ForwardedHeaders = ForwardedHeaders.All
             });
+            //app.UseExceptionHandler();
 
             app.UseRouting();
             app.UseAuthentication();

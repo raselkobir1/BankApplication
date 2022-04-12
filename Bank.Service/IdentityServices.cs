@@ -1,6 +1,7 @@
 ﻿using Bank.Application;
 using Bank.Entity.Core;
 using Bank.Service.ContractModels;
+using Bank.Service.ContractModels.RequestModels;
 using Bank.Utilities.EmailConfig;
 using Bank.Utilities.EmailConfig.Models;
 using Microsoft.AspNetCore.Http;
@@ -136,6 +137,22 @@ namespace Bank.Service
             if (!resetPasswordResult.Succeeded)
             {
                 throw new Exception("Can't reset your password");
+            }
+        }
+
+        public async Task<IdentityResult> ChangePasswordAsync(ChangePassword model, long userId)
+        {
+            try
+            {
+                var user = await _UserManager.FindByIdAsync(userId.ToString());
+                var result = await _UserManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                if (!result.Succeeded)
+                    throw new Exception("User password can't change");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
         

@@ -1,7 +1,7 @@
 import AccountAPI from "@scripts/API/AccountAPI";
 export default {
-    singin(email, password) {
-        return AccountAPI.signin(email, password);
+    singin(email,isRemembeMe, password) {
+        return AccountAPI.signin(email,isRemembeMe, password);
       },
       getAccounts(){
         return AccountAPI.getAccounts();
@@ -43,6 +43,9 @@ export default {
       },
       resetPassword(model) {
         return AccountAPI.resetPassword(model);
+      },
+      changePassword(model) {
+        return AccountAPI.changePassword(model);
       }
 }
 

@@ -51,7 +51,7 @@ namespace BankApplication.Web.Controllers
                 }
                 return View(false);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return View(false);
             }
