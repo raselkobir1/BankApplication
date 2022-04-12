@@ -7,6 +7,7 @@ using Bank.Service.Implementation;
 using Bank.Service.Interface;
 using Bank.Utilities.EmailConfig;
 using Bank.Utilities.EmailConfig.Models;
+using Bank.Utilities.LoggerConfig;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +19,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NLog;
+using System.IO;
 using System.Text;
 
 namespace BankApplication.Web
@@ -46,9 +49,11 @@ namespace BankApplication.Web
                 });
             });
 
+            LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
             services.AddScoped<IRepositoryManager, RepositoryManager>();
             services.AddScoped<IServiceManager, ServiceManager>();
             services.AddScoped<IdentityServices>();
+            services.AddSingleton<ILoggerManager, LoggerManager>();
 
             services.AddIdentity<ApplicationUser, IdentityRole<long>>()
                 .AddEntityFrameworkStores<DatabaseContext>()
@@ -145,6 +150,7 @@ namespace BankApplication.Web
             {
                 ForwardedHeaders = ForwardedHeaders.All
             });
+            //app.UseExceptionHandler();
 
             app.UseRouting();
             app.UseAuthentication();

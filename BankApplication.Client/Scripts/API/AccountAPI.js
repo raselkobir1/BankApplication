@@ -13,9 +13,9 @@ export default {
         .catch((error) => reject(error.response.data));
     });
   },
-signin(email, password) {
+signin(email,isRemembeMe, password) {
     return new Promise((resolve, reject) => {
-      Axios.post(ACCOUNT_API_ROOT + "/signin"+ `?email=${email}&password=${password}`)
+      Axios.post(ACCOUNT_API_ROOT + "/signin"+ `?email=${email}&isRemembeMe=${isRemembeMe}&password=${password}`)
         .then((response) => {
           console.log("login-response: ", response.data);
           LocalStorageService.setAuthenticationToken(response.data.token);
@@ -48,6 +48,14 @@ signin(email, password) {
         .catch((error) => reject(error.response.data));
     });
   },
+  changePassword(model) {
+    return new Promise((resolve, reject) => {
+      Axios.post(ACCOUNT_API_ROOT + "/change-password", model)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
+  
   getApplicationContext() {
     return new Promise((resolve, reject) => {
       Axios.get(ACCOUNT_API_ROOT + `/app-context`)

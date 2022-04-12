@@ -44,6 +44,7 @@
         <h1 class="h2">Customer Dashboard</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
           <div class="btn-group me-2">
+            <button type="button" @click="OnClickChangePassword" class="btn btn-sm btn-outline-secondary">Change Password</button>
             <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-secondary">Sign out</button>
           </div>
         </div>
@@ -89,6 +90,9 @@ export default {
         .catch((error) => {
           console.log(error);
         })
+     },
+     OnClickChangePassword() {
+        this.$router.push({ name: "changePassword"}); 
      },
      OnClickApplayBankAccount(){
           this.$router.push({ name: "applayBankAccount"});

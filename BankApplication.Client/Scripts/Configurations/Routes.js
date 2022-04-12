@@ -12,6 +12,7 @@ import VerifyEmail from "@scripts/Pages/VerifyEmail.vue";
 import ApplayBankAccount from "@scripts/Pages/ApplayBankAccount.vue";
 import Deposite from "@scripts/Pages/Deposite.vue";
 import Widthdrown from "@scripts/Pages/Widthdrown.vue";
+import ChangePassword from "@scripts/Pages/ChangePassword.vue";
 import TransactionStatement from "@scripts/Pages/TransactionStatement.vue";
 
 import vuexExample from "@scripts/Pages/RnD/vuexExample.vue";
@@ -42,7 +43,9 @@ let router = new Router({
                         { path: "deposite", name:"deposite", component:Deposite },
                         { path: "widthdrown", name:"widthdrown", component:Widthdrown },
                         { path: "transactionStatement", name:"transactionStatement", component:TransactionStatement },
+                        { path: "changePassword", name:"changePassword", component:ChangePassword },
                         { path: "vuexExample", name:"vuexExample", component:vuexExample },
+                        
                     ]
                 },
             ]
