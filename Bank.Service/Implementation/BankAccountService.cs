@@ -4,6 +4,7 @@ using Bank.Entity.Core;
 using Bank.Service.ContractModels;
 using Bank.Service.ContractModels.ResponseModel;
 using Bank.Service.Interface;
+using Bank.Utilities.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,11 +106,12 @@ namespace Bank.Service.Implementation
         }
 
 
-        public IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges)
+        public PaginatedData<BankAccResponse> GetAllBankAccounts(bool trackChanges, int pageNo, int pageSize) 
         {
-            var bankAccounts = _repositoryManager.BankAccount.GetAllBankAccounts(trackChanges);
-
-           // var customers = .Set<BankAccResponse>().AsQueryable();
+            var bankAccounts = _repositoryManager.BankAccount.GetAllBankAccounts(trackChanges)
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
             var accountList = new List<BankAccResponse>();
             foreach (var bankAcc in bankAccounts)
@@ -132,7 +134,9 @@ namespace Bank.Service.Implementation
                             join u in users on a.ApplicationUserId equals u.Id
                             select new BankAccResponse { UserName = u.UserName, AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, Id = a.Id })
                             .ToList();
-            return accounts;
+            var totalItems = accounts.Count();
+            var responseList = new PaginatedData<BankAccResponse>(accounts, pageNo, pageSize, totalItems);
+            return responseList; 
         }
 
         public IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges)

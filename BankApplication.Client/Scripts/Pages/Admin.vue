@@ -40,7 +40,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(account, index) of accountList" :key="index">
+            <tr v-for="(account, index) of accountList.items" :key="index">
               <td>{{index}}</td>
               <td>{{account.userName}}</td>
               <td>{{account.accountNo}}</td>
