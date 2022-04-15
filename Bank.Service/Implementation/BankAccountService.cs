@@ -108,6 +108,9 @@ namespace Bank.Service.Implementation
         public IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges)
         {
             var bankAccounts = _repositoryManager.BankAccount.GetAllBankAccounts(trackChanges);
+
+           // var customers = .Set<BankAccResponse>().AsQueryable();
+
             var accountList = new List<BankAccResponse>();
             foreach (var bankAcc in bankAccounts)
             {
@@ -123,11 +126,13 @@ namespace Bank.Service.Implementation
                 accountList.Add(bankAccount);
             }
             var users = _repositoryManager.AuthinticationRepository.GetApplicationUsers(false).ToList();
+
+
             var accounts = (from a in accountList
                             join u in users on a.ApplicationUserId equals u.Id
                             select new BankAccResponse { UserName = u.UserName, AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, Id = a.Id })
                             .ToList();
-            return accountList;
+            return accounts;
         }
 
         public IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges)
