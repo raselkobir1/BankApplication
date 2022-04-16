@@ -1,7 +1,7 @@
 <template>
   <div class="section-pagination" v-if="vmPagination.itemsTotal >= 10">
     <nav aria-label="Page navigation example" class="pagination-navigation">
-      <ul v-if="vmPagination.itemsTotal > 0" class="pagination pagination-area">
+      <ul v-if="vmPagination.itemsTotal > 10" class="pagination pagination-area">
         <span class="page-size">View </span>
         <select v-model="vmPagination.pageSize" @change="onPageSizeChange">
           <option v-for="page in vmPageSizes" :key="page" :value="page">

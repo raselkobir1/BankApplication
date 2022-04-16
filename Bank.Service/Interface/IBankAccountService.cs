@@ -8,7 +8,7 @@ namespace Bank.Service.Interface
 {
     public interface IBankAccountService
     {
-        PaginatedData<BankAccResponse> GetAllBankAccounts(bool trackChanges, int pageNo, int pageSize);   
+        PaginatedData<BankAccResponse> GetAllBankAccounts(bool trackChanges, int pageNo, int pageSize, string searchValue, string selectedItem);   
         BankAccountDto CreateBankAccount(BankAccountDto bankAccountDto);
         void CreateTransaction(BalanceDto balanceDto, long loginUserId);
         IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges);  

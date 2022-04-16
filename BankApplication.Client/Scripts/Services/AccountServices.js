@@ -1,10 +1,10 @@
 import AccountAPI from "@scripts/API/AccountAPI";
 export default {
     singin(email,isRemembeMe, password) {
-        return AccountAPI.signin(email,isRemembeMe, password);
+        return AccountAPI.signin(email, isRemembeMe, password);
       },
-      getAccounts(pageNo,pageSize){
-        return AccountAPI.getAccounts(pageNo,pageSize);
+      getAccounts(pageNo, pageSize, selectedItem, searchValue){
+        return AccountAPI.getAccounts(pageNo, pageSize, selectedItem, searchValue);
       },
       getApplicationContext() {
         return AccountAPI.getApplicationContext();
