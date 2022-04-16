@@ -11,6 +11,12 @@
               Admin Dashboard
             </a>
           </li>
+            <li class="nav-item">
+              <p class="nav-link active">
+                <router-link :to="{ name: 'dataGraph' }">Chart view</router-link>
+              </p>
+          </li>
+          
         </ul>
       </div>
     </nav>
@@ -26,7 +32,7 @@
       </div>
 
       <div class="d-flex bd-highlight">
-        <div class="p-2 flex-grow-1 bd-highlight">Customers account list</div>
+        <div class="p-2 flex-grow-1 bd-highlight"><h4>Customer account list</h4></div>
         <div class="p-2 bd-highlight">
                <Dropdown 
                 :optionValues="searchItems" 
