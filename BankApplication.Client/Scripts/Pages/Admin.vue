@@ -41,7 +41,7 @@
           </thead>
           <tbody>
             <tr v-for="(account, index) of accountList" :key="index">
-              <td>{{index}}</td>
+              <td>{{index+1}}</td>
               <td>{{account.userName}}</td>
               <td>{{account.accountNo}}</td>
               <td>{{account.openingBalance}}</td>
@@ -56,7 +56,7 @@
         </table>
       </div>
        <Pagination
-        v-if="vmPaginationModel.itemsTotal > 0"
+        v-if="vmPaginationModel.itemsTotal > 9"
         label="Bank Account"
         :value="vmPaginationModel"
         @pageChanged="onPageChanged"
