@@ -61,7 +61,7 @@ namespace BankApplication.Web.Controllers
 
         [HttpGet("get-accounts")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public IActionResult CustomerBankAccounts(int pageNo = 1, int pageSize = 10) 
+        public IActionResult CustomerBankAccounts(int pageNo, int pageSize) 
         {
             try
             {

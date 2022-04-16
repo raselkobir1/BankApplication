@@ -40,7 +40,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(account, index) of accountList.items" :key="index">
+            <tr v-for="(account, index) of accountList" :key="index">
               <td>{{index}}</td>
               <td>{{account.userName}}</td>
               <td>{{account.accountNo}}</td>
@@ -55,6 +55,14 @@
           </tbody>
         </table>
       </div>
+       <Pagination
+        v-if="vmPaginationModel.itemsTotal > 0"
+        label="Bank Account"
+        :value="vmPaginationModel"
+        @pageChanged="onPageChanged"
+        @pageSizeChanged="onPageSizeChanged"
+      >
+      </Pagination>
     </main>
   </div>
 </div>
@@ -62,14 +70,19 @@
 </template>
 
 <script>
-//import LoginModel from "@scripts/Models/Accounts/LoginModel";
+import Pagination from "@scripts/Components/Pagination";
+import PaginationModel from "@scripts/Models/Pagination";
 import AccountService from "@scripts/Services/AccountServices";
 
 export default {
+  components: { Pagination },
   data() {
     return {
       accountList: [],
-      context: ''
+      context: '',
+       vmPaginationModel: new PaginationModel(),
+      pageNo: 1,
+      pageSize: 10,
     };
   },
   mounted(){
@@ -78,10 +91,11 @@ export default {
   },
   methods: {
     async getCustomerAccounts() {
-        AccountService.getAccounts()
+        AccountService.getAccounts(this.pageNo,this.pageSize )
           .then((response) => {
-            this.accountList = response.data.accounts
-            console.log("Response data :", response.data.accounts);
+            this.accountList = response.items;
+            this.vmPaginationModel = response.pagination;
+            console.log("Response data :", response);
             //this.$router.push({ name: "admin" });
           })
           .catch((error) => {
@@ -91,6 +105,18 @@ export default {
             
           });
     },
+
+    onPageChanged() {
+    this.pageNo = this.vmPaginationModel.pageNo;
+    console.log("onPage change:", this.vmPaginationModel);
+    this.getCustomerAccounts();
+  },
+  onPageSizeChanged(pageSize) {
+    this.pageSize = this.vmPaginationModel.pageSize;
+    console.log("onPageSize change:", this.vmPaginationModel);
+    this.getCustomerAccounts();
+  },
+
     getApplicationContext() {
       AccountService.getApplicationContext()
         .then((response) => {

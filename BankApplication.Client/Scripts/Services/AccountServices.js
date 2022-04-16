@@ -3,8 +3,8 @@ export default {
     singin(email,isRemembeMe, password) {
         return AccountAPI.signin(email,isRemembeMe, password);
       },
-      getAccounts(){
-        return AccountAPI.getAccounts();
+      getAccounts(pageNo,pageSize){
+        return AccountAPI.getAccounts(pageNo,pageSize);
       },
       getApplicationContext() {
         return AccountAPI.getApplicationContext();

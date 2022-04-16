@@ -1,0 +1,25 @@
+.section-pagination {
+    @extend .d-flex, .justify-content-between, .align-items-center;
+    margin-top: 1rem !important;
+    font-size:8rem;
+    .pagination-area {
+      @extend .d-flex, .justify-content-end, .align-items-center, .mb-0;
+      select {
+        padding: 5px;
+        border: 1px solid #ced4da;
+        border-radius: 3px;
+      }
+      .page-size {
+        @extend .mx-2;
+      }
+    }
+    .paginate-text {
+      @extend .order-0;
+    }
+    .pagination-navigation {
+      @extend .order-1;
+      .page-item {
+        cursor: pointer;
+      }
+    }
+  }

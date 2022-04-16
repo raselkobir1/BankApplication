@@ -5811,7 +5811,7 @@ textarea.form-control-lg {
   display: table-cell !important;
 }
 
-.d-flex {
+.d-flex, .section-pagination .pagination-area, .section-pagination {
   display: flex !important;
 }
 
@@ -6128,7 +6128,7 @@ textarea.form-control-lg {
   justify-content: flex-start !important;
 }
 
-.justify-content-end {
+.justify-content-end, .section-pagination .pagination-area {
   justify-content: flex-end !important;
 }
 
@@ -6136,7 +6136,7 @@ textarea.form-control-lg {
   justify-content: center !important;
 }
 
-.justify-content-between {
+.justify-content-between, .section-pagination {
   justify-content: space-between !important;
 }
 
@@ -6156,7 +6156,7 @@ textarea.form-control-lg {
   align-items: flex-end !important;
 }
 
-.align-items-center {
+.align-items-center, .section-pagination .pagination-area, .section-pagination {
   align-items: center !important;
 }
 
@@ -6220,11 +6220,11 @@ textarea.form-control-lg {
   order: -1 !important;
 }
 
-.order-0 {
+.order-0, .section-pagination .paginate-text {
   order: 0 !important;
 }
 
-.order-1 {
+.order-1, .section-pagination .pagination-navigation {
   order: 1 !important;
 }
 
@@ -6286,7 +6286,7 @@ textarea.form-control-lg {
   margin-left: 0.25rem !important;
 }
 
-.mx-2 {
+.mx-2, .section-pagination .pagination-area .page-size {
   margin-right: 0.5rem !important;
   margin-left: 0.5rem !important;
 }
@@ -6402,7 +6402,7 @@ textarea.form-control-lg {
   margin-right: auto !important;
 }
 
-.mb-0 {
+.mb-0, .section-pagination .pagination-area {
   margin-bottom: 0 !important;
 }
 
@@ -10240,4 +10240,17 @@ textarea.form-control-lg {
 }
 .page.page-customer.container-fluid .row .sidebar, .page.page-customer.container-sm .row .sidebar, .page.page-customer.container-md .row .sidebar, .page.page-customer.container-lg .row .sidebar, .page.page-customer.container-xl .row .sidebar, .page.page-customer.container-xxl .row .sidebar {
   background-color: #f3f3fa;
+}
+
+.section-pagination {
+  margin-top: 1rem !important;
+  font-size: 8rem;
+}
+.section-pagination .pagination-area select {
+  padding: 5px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+}
+.section-pagination .pagination-navigation .page-item {
+  cursor: pointer;
 }
