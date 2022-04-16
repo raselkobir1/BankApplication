@@ -14,6 +14,8 @@ import Deposite from "@scripts/Pages/Deposite.vue";
 import Widthdrown from "@scripts/Pages/Widthdrown.vue";
 import ChangePassword from "@scripts/Pages/ChangePassword.vue";
 import TransactionStatement from "@scripts/Pages/TransactionStatement.vue";
+import DataGraph from "@scripts/Pages/DataGraph.vue";
+
 
 import vuexExample from "@scripts/Pages/RnD/vuexExample.vue";
 
@@ -36,6 +38,7 @@ let router = new Router({
                 { path: "afterPassReset", name:"afterPassReset", component:AfterPassReset },
                 { path: "verifyEmail", name:"verifyEmail", component:VerifyEmail },
                 { path: "admin", name:"admin", component:Admin },
+                { path: "dataGraph", name:"dataGraph", component:DataGraph },
                 { path: "customer", name:"customer", component:Customer, 
                 redirect: { name: "transactionStatement" },
                     children: [

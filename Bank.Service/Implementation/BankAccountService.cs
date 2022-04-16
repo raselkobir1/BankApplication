@@ -155,7 +155,7 @@ namespace Bank.Service.Implementation
 
             var count = accounts.Count();
 
-            var finalResult = accounts
+            var finalResult = accounts.OrderBy(x => x.UserName)
                              .Skip((pageNo - 1) * pageSize)
                              .Take(pageSize)
                              .Select(r => r)
