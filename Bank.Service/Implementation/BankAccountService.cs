@@ -4,6 +4,7 @@ using Bank.Entity.Core;
 using Bank.Service.ContractModels;
 using Bank.Service.ContractModels.ResponseModel;
 using Bank.Service.Interface;
+using Bank.Utilities.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,11 +106,14 @@ namespace Bank.Service.Implementation
         }
 
 
-        public IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges)
+        public PaginatedData<BankAccResponse> GetAllBankAccounts(bool trackChanges, int pageNo, int pageSize,string searchValue, string selectedItem) 
         {
-            var bankAccounts = _repositoryManager.BankAccount.GetAllBankAccounts(trackChanges);
+
+            IEnumerable<BankAccount> bankAccountList = new List<BankAccount>();
+            bankAccountList = _repositoryManager.BankAccount.GetAllBankAccounts(trackChanges);
+
             var accountList = new List<BankAccResponse>();
-            foreach (var bankAcc in bankAccounts)
+            foreach (var bankAcc in bankAccountList)
             {
                 var bankAccount = new BankAccResponse()
                 {
@@ -123,11 +127,42 @@ namespace Bank.Service.Implementation
                 accountList.Add(bankAccount);
             }
             var users = _repositoryManager.AuthinticationRepository.GetApplicationUsers(false).ToList();
+
             var accounts = (from a in accountList
                             join u in users on a.ApplicationUserId equals u.Id
-                            select new BankAccResponse { UserName = u.UserName, AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, Id = a.Id })
-                            .ToList();
-            return accountList;
+                            select new BankAccResponse { UserName = u.UserName, AccountType = a.AccountType, AccountNo = a.AccountNo, AccountStatus = a.AccountStatus, OpeningBalance = a.OpeningBalance, Id = a.Id });
+            
+
+            if (selectedItem != null || searchValue != null)
+            {
+                if(selectedItem == "ActiveAccount")
+                {
+                    accounts = accounts.Where(x => x.AccountStatus == true);
+                }
+                else if (selectedItem == "InActiveAccount")
+                {
+                    accounts = accounts.Where(x => x.AccountStatus == false);
+                }
+                else if (selectedItem == "AccountNo" && searchValue != null)
+                {
+                    accounts = accounts.Where(x => x.AccountNo.Trim().ToLower().Contains(searchValue.ToLower().Trim()));
+                }
+                else if(selectedItem == "UserName" && searchValue != null)
+                {
+                    accounts = accounts.Where(x => x.UserName.ToLower().Trim().Contains(searchValue.ToLower().Trim()));
+                }
+            }
+
+            var count = accounts.Count();
+
+            var finalResult = accounts
+                             .Skip((pageNo - 1) * pageSize)
+                             .Take(pageSize)
+                             .Select(r => r)
+                             .ToList();
+           
+            var responseList = new PaginatedData<BankAccResponse>(finalResult, pageNo, pageSize, count);
+            return responseList; 
         }
 
         public IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges)

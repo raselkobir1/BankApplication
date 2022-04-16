@@ -61,11 +61,11 @@ namespace BankApplication.Web.Controllers
 
         [HttpGet("get-accounts")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public IActionResult CustomerBankAccounts()
+        public IActionResult CustomerBankAccounts(int pageNo=1, int pageSize=10, string searchValue="", string selectedItem="") 
         {
             try
             {
-                var accounts = _ServiceManager.BankAccountService.GetAllBankAccounts(false);
+                var accounts = _ServiceManager.BankAccountService.GetAllBankAccounts(false, pageNo, pageSize, searchValue, selectedItem);
                 return Ok(new { accounts = accounts });
             }
             catch (Exception e)

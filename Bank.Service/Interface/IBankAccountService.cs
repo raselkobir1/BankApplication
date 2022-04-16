@@ -1,13 +1,14 @@
 ﻿using Bank.Entity.Core;
 using Bank.Service.ContractModels;
 using Bank.Service.ContractModels.ResponseModel;
+using Bank.Utilities.Pagination;
 using System.Collections.Generic;
 
 namespace Bank.Service.Interface
 {
     public interface IBankAccountService
     {
-        IEnumerable<BankAccResponse> GetAllBankAccounts(bool trackChanges);  
+        PaginatedData<BankAccResponse> GetAllBankAccounts(bool trackChanges, int pageNo, int pageSize, string searchValue, string selectedItem);   
         BankAccountDto CreateBankAccount(BankAccountDto bankAccountDto);
         void CreateTransaction(BalanceDto balanceDto, long loginUserId);
         IEnumerable<BalanceDto> GetAllBankBalance(bool trackChanges);  

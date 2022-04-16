@@ -19,7 +19,7 @@ namespace Bank.Application.Repository.Implementation
 
         public IEnumerable<BankAccount> GetAllBankAccounts(bool trackChanges)
         {
-            return FindAll(trackChanges).ToList();
+            return FindAll(trackChanges);
         }
         public void UpdateBankAccount(BankAccount bankAccount)
         {

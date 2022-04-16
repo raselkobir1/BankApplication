@@ -25,7 +25,34 @@
         </div>
       </div>
 
-      <h2>Customers account list</h2>
+      <div class="d-flex bd-highlight">
+        <div class="p-2 flex-grow-1 bd-highlight">Customers account list</div>
+        <div class="p-2 bd-highlight">
+               <Dropdown 
+                :optionValues="searchItems" 
+                v-model="selectedItem"
+            ></Dropdown>
+        </div>
+        <div class="p-2 bd-highlight">
+               <div class="search-filter">
+            <div class="input-group">
+              <input
+                type="search"
+                v-model="searchValue"
+                class="form-control"
+                placeholder="Search"
+                aria-describedby="basic-addon2"
+              />
+              <span class="input-group-text" id="basic-addon2">
+                <a @click.prevent="getCustomerAccounts()" href="#">
+                  <i class="fa fa-search">Search</i>
+                </a>
+              </span>
+            </div>
+        </div>
+        </div>
+    </div>
+
       <div class="table-responsive">
         <table class="table table-striped table-sm">
           <thead>
@@ -41,7 +68,7 @@
           </thead>
           <tbody>
             <tr v-for="(account, index) of accountList" :key="index">
-              <td>{{index}}</td>
+              <td>{{index+1}}</td>
               <td>{{account.userName}}</td>
               <td>{{account.accountNo}}</td>
               <td>{{account.openingBalance}}</td>
@@ -55,6 +82,14 @@
           </tbody>
         </table>
       </div>
+       <Pagination
+        v-if="vmPaginationModel.itemsTotal > 10"
+        label="Bank Account"
+        :value="vmPaginationModel"
+        @pageChanged="onPageChanged"
+        @pageSizeChanged="onPageSizeChanged"
+      >
+      </Pagination>
     </main>
   </div>
 </div>
@@ -62,14 +97,23 @@
 </template>
 
 <script>
-//import LoginModel from "@scripts/Models/Accounts/LoginModel";
+import Dropdown from "@scripts/Components/Dropdown";
+import Pagination from "@scripts/Components/Pagination";
+import PaginationModel from "@scripts/Models/Pagination";
 import AccountService from "@scripts/Services/AccountServices";
 
 export default {
+  components: { Pagination,Dropdown },
   data() {
     return {
       accountList: [],
-      context: ''
+      context: '',
+       vmPaginationModel: new PaginationModel(),
+      pageNo: 1,
+      pageSize: 10,
+      searchValue:'',
+      selectedItem:'',
+      searchItems:[{text:'Account No',value:'AccountNo'},{text:'Active Account',value:'ActiveAccount'},{text:'InActive Account',value:'InActiveAccount'},{text:'User Name',value:'UserName'}]
     };
   },
   mounted(){
@@ -78,11 +122,12 @@ export default {
   },
   methods: {
     async getCustomerAccounts() {
-        AccountService.getAccounts()
+            console.log("req data for get acc :", this.pageNo,this.pageSize, this.selectedItem, this.searchValue);
+        AccountService.getAccounts(this.pageNo,this.pageSize, this.selectedItem, this.searchValue)
           .then((response) => {
-            this.accountList = response.data.accounts
-            console.log("Response data :", response.data.accounts);
-            //this.$router.push({ name: "admin" });
+            this.accountList = response.items;
+            this.vmPaginationModel = response.pagination;
+            console.log("Response data :", response);
           })
           .catch((error) => {
             console.log(error);
@@ -91,6 +136,17 @@ export default {
             
           });
     },
+    onPageChanged() {
+    this.pageNo = this.vmPaginationModel.pageNo;
+    console.log("onPage change:", this.vmPaginationModel);
+    this.getCustomerAccounts();
+  },
+  onPageSizeChanged(pageSize) {
+    this.pageSize = this.vmPaginationModel.pageSize;
+    console.log("onPageSize change:", this.vmPaginationModel);
+    this.getCustomerAccounts();
+  },
+
     getApplicationContext() {
       AccountService.getApplicationContext()
         .then((response) => {

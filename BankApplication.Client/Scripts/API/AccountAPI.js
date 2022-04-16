@@ -1,5 +1,6 @@
 import Axios from "axios";
 import LocalStorageService from "../Services/LocalStorageService";
+import BankAccountMapper from "@scripts/Models/BankAccountMapper";
 
 const ACCOUNT_API_ROOT = SITE_API_ROOT + "api/Account";
 const Bank_API_ROOT = SITE_API_ROOT + "api/Bank"; 
@@ -64,10 +65,13 @@ signin(email,isRemembeMe, password) {
     });
   },
 //---------Bank Operation--------
-  getAccounts(){
+  getAccounts(pageNo, pageSize, selectedItem, searchValue){
     return new Promise((resolve, reject) => {
-      Axios.get(Bank_API_ROOT + "/get-accounts")
-      .then((response) => resolve(response))
+      Axios.get(Bank_API_ROOT + "/get-accounts"+ `?pageNo=${pageNo}&pageSize=${pageSize}&searchValue=${searchValue}&selectedItem=${selectedItem}`)
+      .then((response) => {
+        console.log("api data page", response.data.accounts);
+        resolve(BankAccountMapper.mapToClient(response.data.accounts)) 
+      })
       .catch((error) => reject(error.response.data));
     });
   },
