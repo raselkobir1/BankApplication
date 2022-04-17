@@ -33,7 +33,7 @@
           <li class="nav-item">
           <a class="nav-link active" @click.prevent="OnClickVuexExample" aria-current="page" href="#">
             <span data-feather="home"></span>
-            Data From vuex
+            Test Functionality
           </a>
         </li>
         </ul>

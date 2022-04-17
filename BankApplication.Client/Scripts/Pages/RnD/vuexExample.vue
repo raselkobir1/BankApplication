@@ -10,7 +10,16 @@
         <div v-else>
             <p>You can't see user value because you refresh the page.Please login again</p>
         </div>
-
+       <input-field
+              class="col-6"
+              label="Username/Email"
+              type="text"
+              data-vv-name="email"
+              v-validate="'required|email'"
+              v-model="email"
+              :error="checkValidation('email')"
+       >
+       </input-field> 
     </div>
 </template>
 
@@ -21,6 +30,7 @@ export default {
   data() {
     return {
       loginUser:'',
+      email:'',
     };
   },
   mounted(){
@@ -30,6 +40,9 @@ export default {
     getloginData() {
          this.loginUser = Store.getLoggedinUser();
       },
+      checkValidation() {
+
+      }
   },
 };
 </script>
