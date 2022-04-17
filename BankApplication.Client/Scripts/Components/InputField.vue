@@ -4,7 +4,7 @@
     <input class="form-control" :placeholder="placeholder"
       v-model="value_temp" :type="type ? type : 'text'"
       @change="onInput" @blur="onBlur"/>
-    <span class="form-feedback" v-if="hasError">{{error}}</span>
+    <span class="form-feedback" style="color:red" v-if="hasError">{{error}}</span>
   </div>
 </template>
 

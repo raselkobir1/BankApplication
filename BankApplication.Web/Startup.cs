@@ -7,6 +7,7 @@ using Bank.Service.Implementation;
 using Bank.Service.Interface;
 using Bank.Utilities.EmailConfig;
 using Bank.Utilities.EmailConfig.Models;
+using Bank.Utilities.GlobalErrorHandler;
 using Bank.Utilities.LoggerConfig;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -54,6 +55,7 @@ namespace BankApplication.Web
             services.AddScoped<IServiceManager, ServiceManager>();
             services.AddScoped<IdentityServices>();
             services.AddSingleton<ILoggerManager, LoggerManager>();
+
 
             services.AddIdentity<ApplicationUser, IdentityRole<long>>()
                 .AddEntityFrameworkStores<DatabaseContext>()
@@ -142,7 +144,9 @@ namespace BankApplication.Web
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BankApplication.Web v1"));
             }
-            
+
+            app.UseMiddleware<ErrorHandlerMiddleware>();
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
