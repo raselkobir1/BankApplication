@@ -34,7 +34,9 @@ export default {
       customerTransactionHistory(){
         return AccountAPI.customerTransactionHistory();
       },
-
+      invitationSend(email) {
+        return AccountAPI.invitationSend(email);
+      },
       CustomerRegistrationFormSubmit(fd) {
         return AccountAPI.CustomerRegistrationFormSubmit(fd); 
       } ,

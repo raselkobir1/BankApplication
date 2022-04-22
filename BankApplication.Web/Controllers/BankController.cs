@@ -121,6 +121,12 @@ namespace BankApplication.Web.Controllers
                 throw new Exception(e.Message);
             }
         }
+        [HttpPost]
+        [Route("invite")]
+        public async Task<IActionResult> SendInvitation(string email)
+        {
+            return Ok();
+        }
         private async Task<ApplicationUser> GetLoggedInUserAsync()
         {
             var loggedInUserId = User.FindFirstValue(ClaimTypes.PrimarySid);

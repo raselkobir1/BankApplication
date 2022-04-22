@@ -125,6 +125,15 @@ signin(email,isRemembeMe, password) {
     });
   },
 
+  invitationSend(email){
+    return new Promise((resolve, reject) => {
+      Axios.post(Bank_API_ROOT + "/invite"+ `?email=${email}`)
+      .then((response) => {
+        resolve()
+      })
+      .catch((error) => reject(error.response.data));
+    });
+  }, 
 }
 
 

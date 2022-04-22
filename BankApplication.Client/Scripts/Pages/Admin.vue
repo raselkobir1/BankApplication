@@ -26,26 +26,9 @@
         <h1 class="h2">Dashboard</h1>
         <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between">
           <div class="btn-group me-2 ">
-            <!-- <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-primary">Invite User</button> -->
-          <Modal
-              v-model="showModal"
-              title="Invite Admin user"
-              wrapper-class="modal-wrapper"
-              modal-class="Small"
-            >
-              <div class="row d-flex">
-                <div class="col-md-12">
-                  <input type="text" class="form-control">
-                </div>
-                <div class="col-md-12">
-                  <button
-                    class="btn btn-primary float-right" @click.prevent="OnInviteSendClick()">
-                    Send Invitation
-                  </button>
-                </div>
-              </div>
-            </Modal>
-
+          <button type="button" class="btn btn-sm btn-outline-primary" @click="showModal = true" >
+          Invite user
+        </button>
           </div>
             <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-secondary">Sign out</button>
         </div>
@@ -116,6 +99,29 @@
         @pageSizeChanged="onPageSizeChanged"
       >
       </Pagination>
+
+     <Modal
+          v-model="showModal"
+          title="Invite Admin user"
+          wrapper-class="modal-wrapper"
+          modal-class="Small">
+        <div class="row p-3">
+             <input-field
+                class="col-12"
+                label="Email"
+                type="text"
+                data-vv-name="email"
+                v-validate="'required|email'"
+                v-model="email"
+                :error="checkValidation('email')"
+              >
+           </input-field>
+          <div class="d-grid">
+            <button class="btn btn-primary float-right mt-3" @click.prevent="OnInviteSendClick()"> Send Invitation</button>
+        </div>
+      </div>
+  </Modal>
+
     </main>
   </div>
 </div>
@@ -139,7 +145,8 @@ export default {
       pageSize: 10,
       searchValue:'',
       selectedItem:'',
-      showModal: true,
+      showModal: false,
+      email:'',
       searchItems:[{text:'Account No',value:'AccountNo'},{text:'Active Account',value:'ActiveAccount'},{text:'InActive Account',value:'InActiveAccount'},{text:'User Name',value:'UserName'}]
     };
   },
@@ -163,8 +170,22 @@ export default {
             
           });
     },
-    OnInviteSendClick() {
-      
+    async OnInviteSendClick() {
+       if(await this.$validator.validateAll()) {
+          this.showModal = false;
+           AccountService.invitationSend(this.email)
+          .then((response) => {
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            
+          });
+        }
+    },
+    checkValidation(field) {
+      return this.$validator.errors.first(field);
     },
     onPageChanged() {
     this.pageNo = this.vmPaginationModel.pageNo;
