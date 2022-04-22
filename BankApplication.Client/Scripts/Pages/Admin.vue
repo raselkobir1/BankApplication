@@ -24,10 +24,30 @@
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Dashboard</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-            <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-secondary">Sign out</button>
+        <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between">
+          <div class="btn-group me-2 ">
+            <!-- <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-primary">Invite User</button> -->
+          <Modal
+              v-model="showModal"
+              title="Invite Admin user"
+              wrapper-class="modal-wrapper"
+              modal-class="Small"
+            >
+              <div class="row d-flex">
+                <div class="col-md-12">
+                  <input type="text" class="form-control">
+                </div>
+                <div class="col-md-12">
+                  <button
+                    class="btn btn-primary float-right" @click.prevent="OnInviteSendClick()">
+                    Send Invitation
+                  </button>
+                </div>
+              </div>
+            </Modal>
+
           </div>
+            <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-secondary">Sign out</button>
         </div>
       </div>
 
@@ -119,6 +139,7 @@ export default {
       pageSize: 10,
       searchValue:'',
       selectedItem:'',
+      showModal: true,
       searchItems:[{text:'Account No',value:'AccountNo'},{text:'Active Account',value:'ActiveAccount'},{text:'InActive Account',value:'InActiveAccount'},{text:'User Name',value:'UserName'}]
     };
   },
@@ -141,6 +162,9 @@ export default {
           .finally(() => {
             
           });
+    },
+    OnInviteSendClick() {
+      
     },
     onPageChanged() {
     this.pageNo = this.vmPaginationModel.pageNo;

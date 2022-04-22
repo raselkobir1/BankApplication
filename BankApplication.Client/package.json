@@ -6,6 +6,7 @@
     "prod": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress  --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
   "dependencies": {
+    "@kouts/vue-modal": "2.1.4",
     "axios": "0.21.1",
     "bootstrap": "5.0.2",
     "chart.js": "2.9.4",
