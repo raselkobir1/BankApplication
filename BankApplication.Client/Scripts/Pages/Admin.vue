@@ -116,6 +116,12 @@
                 :error="checkValidation('email')"
               >
            </input-field>
+        <div class="">
+          <input class="form-check-input" v-model="role" type="checkbox" id="flexCheckIndeterminate">
+          <label class="form-check-label" for="flexCheckIndeterminate">
+            Is admin user
+          </label>
+        </div>
           <div class="d-grid">
             <button class="btn btn-primary float-right mt-3" @click.prevent="OnInviteSendClick()"> Send Invitation</button>
         </div>
@@ -146,6 +152,7 @@ export default {
       searchValue:'',
       selectedItem:'',
       showModal: false,
+      role:'',
       email:'',
       searchItems:[{text:'Account No',value:'AccountNo'},{text:'Active Account',value:'ActiveAccount'},{text:'InActive Account',value:'InActiveAccount'},{text:'User Name',value:'UserName'}]
     };
@@ -173,7 +180,8 @@ export default {
     async OnInviteSendClick() {
        if(await this.$validator.validateAll()) {
           this.showModal = false;
-           AccountService.invitationSend(this.email)
+          let userType = this.role == true ? "Admin" : "Customer";
+           AccountService.invitationSend(this.email, userType)
           .then((response) => {
           })
           .catch((error) => {

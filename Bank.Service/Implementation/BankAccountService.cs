@@ -4,7 +4,11 @@ using Bank.Entity.Core;
 using Bank.Service.ContractModels;
 using Bank.Service.ContractModels.ResponseModel;
 using Bank.Service.Interface;
+using Bank.Utilities.EmailConfig;
+using Bank.Utilities.EmailConfig.Models;
 using Bank.Utilities.Pagination;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +21,15 @@ namespace Bank.Service.Implementation
     internal sealed class BankAccountService : IBankAccountService
     {
         private readonly IRepositoryManager _repositoryManager;
+        private readonly IEmailSender _EmailSender;
+        private readonly IHttpContextAccessor _HttpContextAccessor;
         //private readonly ILoggerManager _loggerManager;
         //private readonly IMapper _mapper;
-        public BankAccountService(IRepositoryManager repositoryManager)
+        public BankAccountService(IRepositoryManager repositoryManager, IEmailSender emailSender, IHttpContextAccessor httpContextAccessor) 
         {
             _repositoryManager = repositoryManager;
+            _EmailSender = emailSender;
+            _HttpContextAccessor = httpContextAccessor; 
         }
 
         public BankAccountDto CreateBankAccount(BankAccountDto bankAccountDto)
@@ -226,6 +234,55 @@ namespace Bank.Service.Implementation
 
             _repositoryManager.BankAccount.UpdateBankAccount(account);
             _repositoryManager.SaveChange();
+        }
+
+        public void InviteForUser(string email, string userType, long loginUserId)
+        {
+            if (userType == "Admin")
+            {
+                var invitation = new UserInvitation()
+                {
+                    Id = 0,
+                    InvitedById = loginUserId,
+                    Email = email,
+                    InvitedOn = DateTime.UtcNow,
+                    Code = Guid.NewGuid().ToString(),
+                    Type = Entity.Enum.UserInvitationType.Admin,
+                };
+                _repositoryManager.UserInvitationRepsitory.CreateInvitation(invitation);
+                _repositoryManager.SaveChange();
+                SendInvitationEmail(email, invitation.Code);
+
+            }
+            else
+            {
+                var invitation = new UserInvitation()
+                {
+                    Id = 0,
+                    InvitedById = loginUserId,
+                    Email = email,
+                    InvitedOn = DateTime.UtcNow,
+                    Code = Guid.NewGuid().ToString(),
+                    Type = Entity.Enum.UserInvitationType.Customer,
+                };
+                _repositoryManager.UserInvitationRepsitory.CreateInvitation(invitation);
+                _repositoryManager.SaveChange();
+                SendInvitationEmail(email, invitation.Code);
+            }
+
+        }
+
+        private void SendInvitationEmail(string email, string code) 
+        {
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var acceptInvitationURL = $"{GetSiteBaseUrl()}/accept-invitation?email={email}&code={code}";
+            var message = new Message(new string[] { email }, "Accept invitation link", acceptInvitationURL);
+            _EmailSender.SendEmail(message);  
+        }
+        private string GetSiteBaseUrl()
+        {
+            HttpRequest request = _HttpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}{request.PathBase}";
         }
     }
 }

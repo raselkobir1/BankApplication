@@ -125,9 +125,9 @@ signin(email,isRemembeMe, password) {
     });
   },
 
-  invitationSend(email){
+  invitationSend(email,role){
     return new Promise((resolve, reject) => {
-      Axios.post(Bank_API_ROOT + "/invite"+ `?email=${email}`)
+      Axios.post(Bank_API_ROOT + "/invite"+ `?email=${email}&userType=${role}`)
       .then((response) => {
         resolve()
       })

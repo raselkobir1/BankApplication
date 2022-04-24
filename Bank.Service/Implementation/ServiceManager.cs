@@ -1,5 +1,7 @@
 ﻿using Bank.Application.Repository.Interfaces;
 using Bank.Service.Interface;
+using Bank.Utilities.EmailConfig;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +14,9 @@ namespace Bank.Service.Implementation
     {
         private readonly Lazy<IBankAccountService> _bankAccountService; 
         private readonly Lazy<IAuthinticationService> _authinticationService;  
-        public ServiceManager(IRepositoryManager repositoryManager)
+        public ServiceManager(IRepositoryManager repositoryManager, IEmailSender email, IHttpContextAccessor httpContextAccessor) 
         {
-            _bankAccountService = new Lazy<IBankAccountService>(() => new BankAccountService(repositoryManager));
+            _bankAccountService = new Lazy<IBankAccountService>(() => new BankAccountService(repositoryManager, email, httpContextAccessor));
             _authinticationService = new Lazy<IAuthinticationService>(() => new AuthinticationService(repositoryManager));
         }
 
