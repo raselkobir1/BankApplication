@@ -10,5 +10,7 @@ namespace Bank.Application.Repository.Interfaces
     public interface IUserInvitationRepsitory
     {
         void CreateInvitation(UserInvitation userInvitation);
+        IEnumerable<UserInvitation> GetInvitedUsers(bool trackChanges);
+        void UpdateInvitation(UserInvitation userInvitation);
     }
 }

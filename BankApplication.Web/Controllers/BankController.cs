@@ -1,5 +1,6 @@
 ﻿using Bank.Entity.Core;
 using Bank.Service.ContractModels;
+using Bank.Service.ContractModels.RequestModels;
 using Bank.Service.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -50,7 +51,7 @@ namespace BankApplication.Web.Controllers
             {
                 var user = await GetLoggedInUserAsync();
                 _ServiceManager.BankAccountService.CreateTransaction(balanceDto, user.Id);
-                return Ok("Transaction successfully");
+                return Ok();
             }
             catch (System.Exception e)
             {
@@ -126,15 +127,14 @@ namespace BankApplication.Web.Controllers
         public async Task<IActionResult> SendInvitation(string email, string userType)
         {
             var loginUser = await GetLoggedInUserAsync(); 
-            _ServiceManager.BankAccountService.InviteForUser(email, userType, loginUser.Id);   
+            _ServiceManager.BankAccountService.SendInvitation(email, userType, loginUser.Id);    
             return Ok();
         }
         [HttpPut]
         [Route("accept")]
-        public async Task<IActionResult> AcceptInvitation(string email, string code)  
+        public async Task<IActionResult> AcceptInvitation([FromBody] AcceptInvitation acceptInvitation)  
         {
-            var loginUser = await GetLoggedInUserAsync();
-            _ServiceManager.BankAccountService.InviteForUser(email, userType, loginUser.Id);
+            await _ServiceManager.BankAccountService.AcceptInvitation(acceptInvitation); 
             return Ok();
         }
         private async Task<ApplicationUser> GetLoggedInUserAsync()

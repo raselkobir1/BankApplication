@@ -1,8 +1,10 @@
 ﻿using Bank.Entity.Core;
 using Bank.Service.ContractModels;
+using Bank.Service.ContractModels.RequestModels;
 using Bank.Service.ContractModels.ResponseModel;
 using Bank.Utilities.Pagination;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Bank.Service.Interface
 {
@@ -16,6 +18,7 @@ namespace Bank.Service.Interface
         IEnumerable<BankAccount> GetCurrentCustomerActiveAccount(bool trackChanges, long loginUserId);
         void ActivationCustomerAccount(long accountid);
         void InActivationCustomerAccount(long accountid);
-        void InviteForUser(string email, string userType, long loginUserId); 
+        void SendInvitation(string email, string userType, long loginUserId); 
+       Task AcceptInvitation(AcceptInvitation acceptInvitation); 
     }
 }

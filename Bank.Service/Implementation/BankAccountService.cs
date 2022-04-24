@@ -2,12 +2,14 @@
 using Bank.Application.Repository.Interfaces;
 using Bank.Entity.Core;
 using Bank.Service.ContractModels;
+using Bank.Service.ContractModels.RequestModels;
 using Bank.Service.ContractModels.ResponseModel;
 using Bank.Service.Interface;
 using Bank.Utilities.EmailConfig;
 using Bank.Utilities.EmailConfig.Models;
 using Bank.Utilities.Pagination;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
@@ -20,16 +22,13 @@ namespace Bank.Service.Implementation
 {
     internal sealed class BankAccountService : IBankAccountService
     {
-        private readonly IRepositoryManager _repositoryManager;
-        private readonly IEmailSender _EmailSender;
-        private readonly IHttpContextAccessor _HttpContextAccessor;
-        //private readonly ILoggerManager _loggerManager;
-        //private readonly IMapper _mapper;
-        public BankAccountService(IRepositoryManager repositoryManager, IEmailSender emailSender, IHttpContextAccessor httpContextAccessor) 
+        public BankAccountService(IRepositoryManager repositoryManager, IEmailSender emailSender, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)  
         {
             _repositoryManager = repositoryManager;
             _EmailSender = emailSender;
             _HttpContextAccessor = httpContextAccessor; 
+            _UserManager = userManager;
+            _SignInManager = signInManager;
         }
 
         public BankAccountDto CreateBankAccount(BankAccountDto bankAccountDto)
@@ -236,7 +235,7 @@ namespace Bank.Service.Implementation
             _repositoryManager.SaveChange();
         }
 
-        public void InviteForUser(string email, string userType, long loginUserId)
+        public void SendInvitation(string email, string userType, long loginUserId) 
         {
             if (userType == "Admin")
             {
@@ -274,15 +273,53 @@ namespace Bank.Service.Implementation
 
         private void SendInvitationEmail(string email, string code) 
         {
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var acceptInvitationURL = $"{GetSiteBaseUrl()}/accept-invitation?email={email}&code={code}";
             var message = new Message(new string[] { email }, "Accept invitation link", acceptInvitationURL);
             _EmailSender.SendEmail(message);  
         }
+
+        public async Task AcceptInvitation(AcceptInvitation acceptInvitation)
+        {
+            var invitedUserList = _repositoryManager.UserInvitationRepsitory.GetInvitedUsers(trackChanges:false);
+            var invitedUser = invitedUserList.Where(u=> u.Email == acceptInvitation.Email && u.Code == acceptInvitation.Code).FirstOrDefault(); 
+            if (invitedUser != null)
+            {
+               var applicationUser = new ApplicationUser() { Email = acceptInvitation.Email, UserName = acceptInvitation.Email, BankId = 1, };
+                var result = await _UserManager.CreateAsync(applicationUser, acceptInvitation.Password);
+                //insert user table
+                if (result.Succeeded)
+                {
+                    invitedUser.AcceptedById = applicationUser.Id;
+                    invitedUser.AcceptedOn = DateTime.UtcNow;
+                    _repositoryManager.UserInvitationRepsitory.UpdateInvitation(invitedUser);
+                    _repositoryManager.SaveChange();
+                    await SendMailForVerification(applicationUser);
+                }
+            }
+        }
+        public async Task<Task> SendMailForVerification(ApplicationUser applicationUser)
+        {
+            var token = await _UserManager.GenerateEmailConfirmationTokenAsync(applicationUser);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var confirmationLink = $"{GetSiteBaseUrl()}/confirm-email?email={applicationUser.Email}&token={token}";
+            var message = new Message(new string[] { applicationUser.Email }, "Registration Confirmation link", confirmationLink);
+            _EmailSender.SendEmail(message);
+            return Task.CompletedTask;
+        }
+
         private string GetSiteBaseUrl()
         {
             HttpRequest request = _HttpContextAccessor.HttpContext.Request;
             return $"{request.Scheme}://{request.Host}{request.PathBase}";
         }
+
+
+        private readonly IRepositoryManager _repositoryManager;
+        private readonly IEmailSender _EmailSender;
+        private readonly IHttpContextAccessor _HttpContextAccessor;
+        private readonly SignInManager<ApplicationUser> _SignInManager;
+        private readonly UserManager<ApplicationUser> _UserManager;
+        //private readonly ILoggerManager _loggerManager;
+        //private readonly IMapper _mapper;
     }
 }

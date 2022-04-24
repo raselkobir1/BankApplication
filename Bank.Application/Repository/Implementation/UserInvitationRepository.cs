@@ -19,5 +19,15 @@ namespace Bank.Application.Repository.Implementation
         {
             Create(userInvitation);
         }
+
+        public IEnumerable<UserInvitation> GetInvitedUsers(bool trackChanges)
+        {
+           return FindAll(trackChanges); 
+        }
+
+        public void UpdateInvitation(UserInvitation userInvitation)
+        {
+            Update(userInvitation);
+        }
     }
 }

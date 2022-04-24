@@ -42,6 +42,7 @@ namespace Bank.Service
 
                 applicationUser = new ApplicationUser() { Email = email, UserName = email, BankId = 1, };
                 var result = await _UserManager.CreateAsync(applicationUser, password);
+
                 if (result.Succeeded)
                 {
                     await SendMailForVerification(applicationUser);
@@ -59,7 +60,7 @@ namespace Bank.Service
             }
         }
 
-        private async Task<Task> SendMailForVerification(ApplicationUser applicationUser)
+        public async Task<Task> SendMailForVerification(ApplicationUser applicationUser)
         {
             var token = await _UserManager.GenerateEmailConfirmationTokenAsync(applicationUser);
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
