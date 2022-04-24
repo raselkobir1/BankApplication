@@ -24,10 +24,13 @@
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Dashboard</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-            <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-secondary">Sign out</button>
+        <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between">
+          <div class="btn-group me-2 ">
+          <button type="button" class="btn btn-sm btn-outline-primary" @click="showModal = true" >
+          Invite user
+        </button>
           </div>
+            <button type="button" @click="OnClickSignOut" class="btn btn-sm btn-outline-secondary">Sign out</button>
         </div>
       </div>
 
@@ -96,6 +99,35 @@
         @pageSizeChanged="onPageSizeChanged"
       >
       </Pagination>
+
+     <Modal
+          v-model="showModal"
+          title="Invite Admin user"
+          wrapper-class="modal-wrapper"
+          modal-class="Small">
+        <div class="row p-3">
+             <input-field
+                class="col-12"
+                label="Email"
+                type="text"
+                data-vv-name="email"
+                v-validate="'required|email'"
+                v-model="email"
+                :error="checkValidation('email')"
+              >
+           </input-field>
+        <div class="">
+          <input class="form-check-input" v-model="role" type="checkbox" id="flexCheckIndeterminate">
+          <label class="form-check-label" for="flexCheckIndeterminate">
+            Is admin user
+          </label>
+        </div>
+          <div class="d-grid">
+            <button class="btn btn-primary float-right mt-3" @click.prevent="OnInviteSendClick()"> Send Invitation</button>
+        </div>
+      </div>
+  </Modal>
+
     </main>
   </div>
 </div>
@@ -119,6 +151,9 @@ export default {
       pageSize: 10,
       searchValue:'',
       selectedItem:'',
+      showModal: false,
+      role:'',
+      email:'',
       searchItems:[{text:'Account No',value:'AccountNo'},{text:'Active Account',value:'ActiveAccount'},{text:'InActive Account',value:'InActiveAccount'},{text:'User Name',value:'UserName'}]
     };
   },
@@ -141,6 +176,24 @@ export default {
           .finally(() => {
             
           });
+    },
+    async OnInviteSendClick() {
+       if(await this.$validator.validateAll()) {
+          this.showModal = false;
+          let userType = this.role == true ? "Admin" : "Customer";
+           AccountService.invitationSend(this.email, userType)
+          .then((response) => {
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            
+          });
+        }
+    },
+    checkValidation(field) {
+      return this.$validator.errors.first(field);
     },
     onPageChanged() {
     this.pageNo = this.vmPaginationModel.pageNo;

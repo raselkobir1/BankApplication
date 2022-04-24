@@ -1,5 +1,6 @@
 <template>
     <div class="row">
+      <form>
         <div v-if="!!loginUser">
          <h5> Get Data from vueX, data set on store when user login. note: data show if page no refresh</h5>
         <p><b>User email :</b> {{loginUser.userEmail}}</p>
@@ -10,7 +11,19 @@
         <div v-else>
             <p>You can't see user value because you refresh the page.Please login again</p>
         </div>
+       <input-field
+          class="col-6"
+          label="Username/Email"
+          type="text"
+          data-vv-name="email"
+          v-validate="'required|email'"
+          v-model="email"
+          :error="checkValidation('email')"
+        >
+       </input-field> 
 
+       <button @click.prevent="onTestSubmit">Test Submit</button>
+       </form>
     </div>
 </template>
 
@@ -21,6 +34,7 @@ export default {
   data() {
     return {
       loginUser:'',
+      email:'',
     };
   },
   mounted(){
@@ -29,6 +43,14 @@ export default {
   methods: {
     getloginData() {
          this.loginUser = Store.getLoggedinUser();
+      },
+      async onTestSubmit() {
+        if(await this.$validator.validateAll()) {
+          alert("field is valid");
+        }
+      },
+      checkValidation(field) {
+        return this.$validator.errors.first(field);
       },
   },
 };

@@ -32,10 +32,23 @@ namespace Bank.Application
                 .HasOne(b => b.BankAccount)
                 .WithMany()
                 .HasForeignKey(b => b.BankAccountId);
+
+            modelBuilder.Entity<UserInvitation>()
+                .HasOne(i => i.InvitedBy)
+                .WithMany()
+                .HasForeignKey(i => i.InvitedById)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<UserInvitation>()
+                .HasOne(i => i.AcceptedBy)
+                .WithMany()
+                .HasForeignKey(i => i.AcceptedById)
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         //public DbSet<Bank> Banks { get; set; }
         public DbSet<BankAccount> BankAccounts { get; set; }
         public DbSet<Balance> Balances { get; set; }
+        public DbSet<UserInvitation> UserInvitations { get; set; }   
     }
 }

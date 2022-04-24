@@ -121,6 +121,22 @@ namespace BankApplication.Web.Controllers
                 throw new Exception(e.Message);
             }
         }
+        [HttpPost]
+        [Route("invite")]
+        public async Task<IActionResult> SendInvitation(string email, string userType)
+        {
+            var loginUser = await GetLoggedInUserAsync(); 
+            _ServiceManager.BankAccountService.InviteForUser(email, userType, loginUser.Id);   
+            return Ok();
+        }
+        [HttpPut]
+        [Route("accept")]
+        public async Task<IActionResult> AcceptInvitation(string email, string code)  
+        {
+            var loginUser = await GetLoggedInUserAsync();
+            _ServiceManager.BankAccountService.InviteForUser(email, userType, loginUser.Id);
+            return Ok();
+        }
         private async Task<ApplicationUser> GetLoggedInUserAsync()
         {
             var loggedInUserId = User.FindFirstValue(ClaimTypes.PrimarySid);

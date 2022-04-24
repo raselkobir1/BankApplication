@@ -48,7 +48,6 @@ let router = new Router({
                         { path: "transactionStatement", name:"transactionStatement", component:TransactionStatement },
                         { path: "changePassword", name:"changePassword", component:ChangePassword },
                         { path: "vuexExample", name:"vuexExample", component:vuexExample },
-                        
                     ]
                 },
             ]

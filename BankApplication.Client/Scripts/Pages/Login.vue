@@ -30,7 +30,7 @@
             />
             <label for="floatingPassword">password</label>
           </div>
-          <div class="checkbox mb-3">
+          <div class="d-flex checkbox mb-3 justify-content-between">
             <label>
               <input type="checkbox" v-model="isRemembeMe" value="remember-me" />Remember me
             </label>
@@ -42,7 +42,7 @@
           <a href="#" @click.prevent="onClickRegistration" >Register your account</a >
 
           <p class="mt-5 mb-3 text-muted">&copy;
-              <a :href="siteApi +'swagger/index.html'">view api documentation</a>
+              <a :href="siteApi +'swagger/index.html'" target="_blank">view api documentation</a>
           </p>
 
         </form>

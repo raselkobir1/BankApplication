@@ -19,7 +19,7 @@ namespace BankApplication.Web.Migrations
                 .HasAnnotation("ProductVersion", "5.0.9")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("BankApplication.Web.Models.ApplicationUser", b =>
+            modelBuilder.Entity("Bank.Entity.Core.ApplicationUser", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -89,7 +89,7 @@ namespace BankApplication.Web.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("BankApplication.Web.Models.Balance", b =>
+            modelBuilder.Entity("Bank.Entity.Core.Balance", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -124,28 +124,7 @@ namespace BankApplication.Web.Migrations
                     b.ToTable("Balances");
                 });
 
-            modelBuilder.Entity("BankApplication.Web.Models.Bank", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("BranchName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Banks");
-                });
-
-            modelBuilder.Entity("BankApplication.Web.Models.BankAccount", b =>
+            modelBuilder.Entity("Bank.Entity.Core.BankAccount", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -174,39 +153,41 @@ namespace BankApplication.Web.Migrations
                     b.ToTable("BankAccounts");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            modelBuilder.Entity("Bank.Entity.Core.UserInvitation", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ConcurrencyStamp")
+                    b.Property<long?>("AcceptedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("AcceptedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Code")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long?>("InvitedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("InvitedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("IdentityRole");
+                    b.HasIndex("AcceptedById");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            ConcurrencyStamp = "bd1c90a6-6708-4e73-a954-fc6022aa4c2c",
-                            Name = "Customer",
-                            NormalizedName = "CUSTOMER"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            ConcurrencyStamp = "aba4381f-6af3-4178-9746-7eeaf40570d2",
-                            Name = "Administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        });
+                    b.HasIndex("InvitedById");
+
+                    b.ToTable("UserInvitations");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>
@@ -339,9 +320,9 @@ namespace BankApplication.Web.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("BankApplication.Web.Models.Balance", b =>
+            modelBuilder.Entity("Bank.Entity.Core.Balance", b =>
                 {
-                    b.HasOne("BankApplication.Web.Models.BankAccount", "BankAccount")
+                    b.HasOne("Bank.Entity.Core.BankAccount", "BankAccount")
                         .WithMany()
                         .HasForeignKey("BankAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -350,15 +331,32 @@ namespace BankApplication.Web.Migrations
                     b.Navigation("BankAccount");
                 });
 
-            modelBuilder.Entity("BankApplication.Web.Models.BankAccount", b =>
+            modelBuilder.Entity("Bank.Entity.Core.BankAccount", b =>
                 {
-                    b.HasOne("BankApplication.Web.Models.ApplicationUser", "ApplicationUser")
+                    b.HasOne("Bank.Entity.Core.ApplicationUser", "ApplicationUser")
                         .WithMany()
                         .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("Bank.Entity.Core.UserInvitation", b =>
+                {
+                    b.HasOne("Bank.Entity.Core.ApplicationUser", "AcceptedBy")
+                        .WithMany()
+                        .HasForeignKey("AcceptedById")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Bank.Entity.Core.ApplicationUser", "InvitedBy")
+                        .WithMany()
+                        .HasForeignKey("InvitedById")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("AcceptedBy");
+
+                    b.Navigation("InvitedBy");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
@@ -372,7 +370,7 @@ namespace BankApplication.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<long>", b =>
                 {
-                    b.HasOne("BankApplication.Web.Models.ApplicationUser", null)
+                    b.HasOne("Bank.Entity.Core.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -381,7 +379,7 @@ namespace BankApplication.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
                 {
-                    b.HasOne("BankApplication.Web.Models.ApplicationUser", null)
+                    b.HasOne("Bank.Entity.Core.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,7 +394,7 @@ namespace BankApplication.Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BankApplication.Web.Models.ApplicationUser", null)
+                    b.HasOne("Bank.Entity.Core.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -405,7 +403,7 @@ namespace BankApplication.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
-                    b.HasOne("BankApplication.Web.Models.ApplicationUser", null)
+                    b.HasOne("Bank.Entity.Core.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
