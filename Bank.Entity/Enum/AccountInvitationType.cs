@@ -8,7 +8,7 @@ namespace Bank.Entity.Enum
 {
     public enum UserInvitationType 
     {
-        Admin,
-        Customer
+        Admin = 1,
+        Customer = 2
     }
 }

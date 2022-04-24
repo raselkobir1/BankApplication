@@ -16,6 +16,9 @@ import ChangePassword from "@scripts/Pages/ChangePassword.vue";
 import TransactionStatement from "@scripts/Pages/TransactionStatement.vue";
 import DataGraph from "@scripts/Pages/DataGraph.vue";
 
+import UserAcceptInvitation from "@scripts/Pages/UserAcceptInvitation.vue";
+
+
 
 import vuexExample from "@scripts/Pages/RnD/vuexExample.vue";
 
@@ -38,6 +41,7 @@ let router = new Router({
                 { path: "afterPassReset", name:"afterPassReset", component:AfterPassReset },
                 { path: "verifyEmail", name:"verifyEmail", component:VerifyEmail },
                 { path: "admin", name:"admin", component:Admin },
+                { path: "accept-invitation", name:"accept-invitation", component:UserAcceptInvitation },
                 { path: "dataGraph", name:"dataGraph", component:DataGraph },
                 { path: "customer", name:"customer", component:Customer, 
                 redirect: { name: "transactionStatement" },

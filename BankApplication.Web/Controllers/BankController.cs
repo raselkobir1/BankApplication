@@ -123,7 +123,7 @@ namespace BankApplication.Web.Controllers
             }
         }
         [HttpPost]
-        [Route("invite")]
+        [Route("invite-user")]
         public async Task<IActionResult> SendInvitation(string email, string userType)
         {
             var loginUser = await GetLoggedInUserAsync(); 
@@ -131,7 +131,7 @@ namespace BankApplication.Web.Controllers
             return Ok();
         }
         [HttpPut]
-        [Route("accept")]
+        [Route("accept-invitation")]
         public async Task<IActionResult> AcceptInvitation([FromBody] AcceptInvitation acceptInvitation)  
         {
             await _ServiceManager.BankAccountService.AcceptInvitation(acceptInvitation); 

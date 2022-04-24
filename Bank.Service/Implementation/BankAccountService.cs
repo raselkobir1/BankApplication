@@ -1,6 +1,7 @@
 ﻿using Bank.Application;
 using Bank.Application.Repository.Interfaces;
 using Bank.Entity.Core;
+using Bank.Entity.Enum;
 using Bank.Service.ContractModels;
 using Bank.Service.ContractModels.RequestModels;
 using Bank.Service.ContractModels.ResponseModel;
@@ -292,6 +293,7 @@ namespace Bank.Service.Implementation
                     invitedUser.AcceptedById = applicationUser.Id;
                     invitedUser.AcceptedOn = DateTime.UtcNow;
                     _repositoryManager.UserInvitationRepsitory.UpdateInvitation(invitedUser);
+                    await AddRoleToUser(invitedUser.Type.ToString(), applicationUser);
                     _repositoryManager.SaveChange();
                     await SendMailForVerification(applicationUser);
                 }
@@ -304,6 +306,19 @@ namespace Bank.Service.Implementation
             var confirmationLink = $"{GetSiteBaseUrl()}/confirm-email?email={applicationUser.Email}&token={token}";
             var message = new Message(new string[] { applicationUser.Email }, "Registration Confirmation link", confirmationLink);
             _EmailSender.SendEmail(message);
+            return Task.CompletedTask;
+        }
+        private Task AddRoleToUser(string type, ApplicationUser applicationUser)
+        {
+            if (type == "1")
+            {
+                _UserManager.AddToRoleAsync(applicationUser, Roles.Administrator.ToString()).Wait();
+            }
+            else
+            {
+                _UserManager.AddToRoleAsync(applicationUser, Roles.Customer.ToString()).Wait();
+            }
+            _repositoryManager.SaveChange();
             return Task.CompletedTask;
         }
 

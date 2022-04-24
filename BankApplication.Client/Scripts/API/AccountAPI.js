@@ -127,13 +127,22 @@ signin(email,isRemembeMe, password) {
 
   invitationSend(email,role){
     return new Promise((resolve, reject) => {
-      Axios.post(Bank_API_ROOT + "/invite"+ `?email=${email}&userType=${role}`)
+      Axios.post(Bank_API_ROOT + "/invite-user"+ `?email=${email}&userType=${role}`)
       .then((response) => {
         resolve()
       })
       .catch((error) => reject(error.response.data));
     });
   }, 
+
+  AcceptInvitationUser(model) {
+    return new Promise((resolve, reject) => {
+      Axios.put(Bank_API_ROOT + "/accept-invitation", model)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error.response.data));
+    });
+  },
+  
 }
 
 

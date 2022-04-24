@@ -48,7 +48,11 @@ export default {
       },
       changePassword(model) {
         return AccountAPI.changePassword(model);
+      },
+      AcceptInvitationUser(model) {
+        return AccountAPI.AcceptInvitationUser(model);
       }
+      
 }
 
 
