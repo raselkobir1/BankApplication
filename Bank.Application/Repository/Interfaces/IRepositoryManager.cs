@@ -11,7 +11,8 @@ namespace Bank.Application.Repository.Interfaces
         IBankAccRepository BankAccount { get; }
         IBankTransactionRepository BankTransaction { get; }
         IAuthinticationRepository AuthinticationRepository { get; }
-        IUserInvitationRepsitory UserInvitationRepsitory { get; }    
+        IUserInvitationRepsitory UserInvitationRepsitory { get; }
+        IPromoCodeRepository PromoCodeRepository { get; } 
         void SaveChange();
     }
 }

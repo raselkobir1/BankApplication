@@ -12,8 +12,10 @@ using Bank.Utilities.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -328,6 +330,86 @@ namespace Bank.Service.Implementation
             return $"{request.Scheme}://{request.Host}{request.PathBase}";
         }
 
+        public List<InvalidVoucherExcelModel> ReadAndSavePromocode(MemoryStream mStream)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
+            var ValidPromoCode = new List<PromoCode>();
+            var invalidPromoCode = new List<InvalidVoucherExcelModel>();
+
+            try
+            {
+                using (var excelPackage = new ExcelPackage(mStream))
+                {
+                    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets[0];
+                    var rowCount = worksheet.Dimension.Rows;
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        try
+                        {
+                            AddToValidPromoCodeList(ValidPromoCode, worksheet, row);
+                        }
+                        catch (Exception ex)
+                        {
+
+                            AddToInvalidPromoCodeList(invalidPromoCode, worksheet, row);
+                        }
+                    }
+                }
+                _repositoryManager.PromoCodeRepository.CreatePromocode(ValidPromoCode);
+                _repositoryManager.SaveChange();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return invalidPromoCode;
+        }
+
+        private void AddToInvalidPromoCodeList(List<InvalidVoucherExcelModel> invalidPromoCode, ExcelWorksheet worksheet, int row)
+        {
+            var invalidpromoCode = new InvalidVoucherExcelModel
+            {
+                Code = worksheet.Cells[row, 1].Value.ToString(),
+                Months = worksheet.Cells[row, 3].Value.ToString(),
+                IsMultiple = worksheet.Cells[row, 4].Value.ToString(),
+                ExpiryOn = worksheet.Cells[row, 5].Value.ToString(),
+                IsUsed = string.Empty,
+                UsedBy = string.Empty
+            };
+
+            invalidPromoCode.Add(invalidpromoCode);
+        }
+
+        private void AddToValidPromoCodeList(List<PromoCode> validPromoCode, ExcelWorksheet worksheet, int row)
+        {
+            var promoCode = new PromoCode
+            {
+                Code = worksheet.Cells[row, 1].Value.ToString().Trim(),
+                Months = int.Parse(worksheet.Cells[row, 2].Value.ToString().Trim()),
+                IsMultiple = worksheet.Cells[row, 3].Value.ToString().Trim() == "multiple_time",
+                ExpiryOn = ConvertExcelDate(worksheet.Cells[row, 4]).Value,
+                IsUsed = false,
+                UsedBy = null
+            };
+            //check is existing voucher on db
+            //var existingVoucher = _RepositorySession.VoucherRepository.Select(v => v.Code == voucher.Code);
+            if(true)
+            {
+                validPromoCode.Add(promoCode);
+            }
+            else
+            {
+                throw new Exception("Duplicate promocode detected");
+            }
+        }
+        private DateTime? ConvertExcelDate(object date)
+        {
+            if (date != null && date.GetType() == typeof(DateTime))
+            {
+                return (DateTime)date;
+            }
+            return null;
+        }
 
         private readonly IRepositoryManager _repositoryManager;
         private readonly IEmailSender _EmailSender;

@@ -1,12 +1,17 @@
 ﻿using Bank.Entity.Core;
 using Bank.Service.ContractModels;
 using Bank.Service.ContractModels.RequestModels;
+using Bank.Service.ContractModels.ResponseModel;
 using Bank.Service.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -137,6 +142,40 @@ namespace BankApplication.Web.Controllers
             await _ServiceManager.BankAccountService.AcceptInvitation(acceptInvitation); 
             return Ok();
         }
+        [HttpPost]
+        [Route("import-promo")]
+        public IActionResult ImportPromocode([FromForm] IFormFile file) 
+        {
+            var invalidVouchers = new List<InvalidVoucherExcelModel>();
+
+            using (var mStream = new MemoryStream())
+            {
+                try
+                {
+                    file.CopyTo(mStream);
+                    invalidVouchers = _ServiceManager.BankAccountService.ReadAndSavePromocode(mStream);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ex.Message);
+                }
+            }
+            if(invalidVouchers.Count > 0)
+            {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                byte[] invalidPromoCodeBytes; 
+                using (var excelPackage = new ExcelPackage())
+                {
+                    var workSheet = excelPackage.Workbook.Worksheets.Add("Invalid Vouchers");
+                    var rowRange = workSheet.Cells["A1"].LoadFromCollection(invalidVouchers, true);
+                    rowRange.AutoFitColumns();
+                    invalidPromoCodeBytes = excelPackage.GetAsByteArray();
+                }
+                return File(invalidPromoCodeBytes, "application/octet-stream", "invalid-vouvhers.xlsx");
+            }
+            return StatusCode(201, "Vouchars created");
+        }
+
         private async Task<ApplicationUser> GetLoggedInUserAsync()
         {
             var loggedInUserId = User.FindFirstValue(ClaimTypes.PrimarySid);

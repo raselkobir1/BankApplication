@@ -44,6 +44,9 @@ namespace Bank.Application
                 .WithMany()
                 .HasForeignKey(i => i.AcceptedById)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<PromoCode>()
+                .HasKey(p => p.Id);
         }
 
         //public DbSet<Bank> Banks { get; set; }

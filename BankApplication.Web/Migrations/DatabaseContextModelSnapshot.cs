@@ -153,6 +153,42 @@ namespace BankApplication.Web.Migrations
                     b.ToTable("BankAccounts");
                 });
 
+            modelBuilder.Entity("Bank.Entity.Core.PromoCode", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiryOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsMultiple")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Months")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UsedBy")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PromoCode");
+                });
+
             modelBuilder.Entity("Bank.Entity.Core.UserInvitation", b =>
                 {
                     b.Property<long>("Id")

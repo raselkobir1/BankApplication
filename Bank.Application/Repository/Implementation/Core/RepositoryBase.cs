@@ -39,5 +39,10 @@ namespace Bank.Application.Repository.Implementation.Core
         {
             RepositoryContext.Set<T>().Remove(entity);
         }
+
+        public virtual void Create(List<T> entities)
+        {
+            RepositoryContext.Set<T>().AddRange(entities);
+        }
     }
 }

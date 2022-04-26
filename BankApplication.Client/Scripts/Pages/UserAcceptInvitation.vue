@@ -69,7 +69,7 @@ export default {
     };
   },
   mounted() {
-    
+    this.getInvitedEmail(); 
   },
   methods: {
      onClickAcceptInvitationUser() {
@@ -81,7 +81,7 @@ export default {
             code : this.$route.query.code,
             email : this.$route.query.email,
         }
-        this.invitedEmail = this.$route.query.email;
+        
         AccountService.AcceptInvitationUser(userAcceptModel)
           .then((response) => {
             this.$router.push({ name: "verifyEmail"});
@@ -92,6 +92,9 @@ export default {
           .finally(() => {
               this.ClearInputField();
           });
+      },
+    getInvitedEmail() {
+      this.invitedEmail = this.$route.query.email;
     },
     checkValidation(field) {
       return this.$validator.errors.first(field);

@@ -14,6 +14,7 @@ namespace Bank.Application.Repository.Implementation
         private readonly Lazy<IBankTransactionRepository> _transactionRepository;      
         private readonly Lazy<IAuthinticationRepository> _authinticationRepository;
         private readonly Lazy<IUserInvitationRepsitory> _userInvitationRepsitory; 
+        private readonly Lazy<IPromoCodeRepository> _promoCodeRepsitory; 
 
         public RepositoryManager(DatabaseContext repositoryContext) 
         {
@@ -22,6 +23,7 @@ namespace Bank.Application.Repository.Implementation
             _transactionRepository = new Lazy<IBankTransactionRepository>(() => new BankTransactionRepository(_repositoryContext));
             _authinticationRepository = new Lazy<IAuthinticationRepository>(() => new AuthinticationRepository(_repositoryContext));
             _userInvitationRepsitory = new Lazy<IUserInvitationRepsitory>(() => new UserInvitationRepository(_repositoryContext));
+            _promoCodeRepsitory = new Lazy<IPromoCodeRepository>(() => new PromoCodeRepository(_repositoryContext));
         }
 
         public IBankAccRepository BankAccount => _bankAccountRepository.Value;
@@ -31,6 +33,7 @@ namespace Bank.Application.Repository.Implementation
         public IAuthinticationRepository AuthinticationRepository => _authinticationRepository.Value;
 
         public IUserInvitationRepsitory UserInvitationRepsitory => _userInvitationRepsitory.Value;
+        public IPromoCodeRepository PromoCodeRepository => _promoCodeRepsitory.Value;
 
         public void SaveChange()
         {
