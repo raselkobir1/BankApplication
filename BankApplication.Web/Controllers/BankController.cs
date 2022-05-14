@@ -146,28 +146,28 @@ namespace BankApplication.Web.Controllers
         [Route("import-promo")]
         public IActionResult ImportPromocode([FromForm] IFormFile file) 
         {
-            var invalidVouchers = new List<InvalidVoucherExcelModel>();
+            var invalidPromoCode = new List<InvalidVoucherExcelModel>();
 
             using (var mStream = new MemoryStream())
             {
                 try
                 {
                     file.CopyTo(mStream);
-                    invalidVouchers = _ServiceManager.BankAccountService.ReadAndSavePromocode(mStream);
+                    invalidPromoCode = _ServiceManager.BankAccountService.ReadAndSavePromocode(mStream);
                 }
                 catch (Exception ex)
                 {
                     return StatusCode(500, ex.Message);
                 }
             }
-            if(invalidVouchers.Count > 0)
+            if(invalidPromoCode.Count > 0)
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 byte[] invalidPromoCodeBytes; 
                 using (var excelPackage = new ExcelPackage())
                 {
                     var workSheet = excelPackage.Workbook.Worksheets.Add("Invalid Vouchers");
-                    var rowRange = workSheet.Cells["A1"].LoadFromCollection(invalidVouchers, true);
+                    var rowRange = workSheet.Cells["A1"].LoadFromCollection(invalidPromoCode, true);
                     rowRange.AutoFitColumns();
                     invalidPromoCodeBytes = excelPackage.GetAsByteArray();
                 }

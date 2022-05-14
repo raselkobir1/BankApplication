@@ -392,8 +392,8 @@ namespace Bank.Service.Implementation
                 UsedBy = null
             };
             //check is existing voucher on db
-            //var existingVoucher = _RepositorySession.VoucherRepository.Select(v => v.Code == voucher.Code);
-            if(true)
+            var existingPromocode = _repositoryManager.PromoCodeRepository.GetPromocodes(false).Where(x => x.Code == promoCode.Code);
+            if (existingPromocode is null)
             {
                 validPromoCode.Add(promoCode);
             }

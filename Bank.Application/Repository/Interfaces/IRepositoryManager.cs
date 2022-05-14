@@ -13,6 +13,7 @@ namespace Bank.Application.Repository.Interfaces
         IAuthinticationRepository AuthinticationRepository { get; }
         IUserInvitationRepsitory UserInvitationRepsitory { get; }
         IPromoCodeRepository PromoCodeRepository { get; } 
+
         void SaveChange();
     }
 }

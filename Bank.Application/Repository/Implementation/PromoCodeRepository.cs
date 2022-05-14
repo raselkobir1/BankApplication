@@ -19,5 +19,10 @@ namespace Bank.Application.Repository.Implementation
         {
             Create(promoCodes);
         }
+
+        public IEnumerable<PromoCode> GetPromocodes(bool trackchanges)
+        {
+            return FindAll(trackchanges);
+        }
     }
 }
