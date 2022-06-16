@@ -67,7 +67,7 @@ namespace BankApplication.Web.Controllers
 
         [HttpGet("get-accounts")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public IActionResult CustomerBankAccounts(int pageNo=1, int pageSize=10, string searchValue="", string selectedItem="") 
+        public IActionResult CustomerBankAccounts(int pageNo = 1, int pageSize = 10, string searchValue = "", string selectedItem = "")
         {
             try
             {
@@ -131,20 +131,20 @@ namespace BankApplication.Web.Controllers
         [Route("invite-user")]
         public async Task<IActionResult> SendInvitation(string email, string userType)
         {
-            var loginUser = await GetLoggedInUserAsync(); 
-            _ServiceManager.BankAccountService.SendInvitation(email, userType, loginUser.Id);    
+            var loginUser = await GetLoggedInUserAsync();
+            _ServiceManager.BankAccountService.SendInvitation(email, userType, loginUser.Id);
             return Ok();
         }
         [HttpPut]
         [Route("accept-invitation")]
-        public async Task<IActionResult> AcceptInvitation([FromBody] AcceptInvitation acceptInvitation)  
+        public async Task<IActionResult> AcceptInvitation([FromBody] AcceptInvitation acceptInvitation)
         {
-            await _ServiceManager.BankAccountService.AcceptInvitation(acceptInvitation); 
+            await _ServiceManager.BankAccountService.AcceptInvitation(acceptInvitation);
             return Ok();
         }
         [HttpPost]
         [Route("import-promo")]
-        public IActionResult ImportPromocode([FromForm] IFormFile file) 
+        public IActionResult ImportPromocode([FromForm] IFormFile file)
         {
             var invalidPromoCode = new List<InvalidVoucherExcelModel>();
 
@@ -160,10 +160,10 @@ namespace BankApplication.Web.Controllers
                     return StatusCode(500, ex.Message);
                 }
             }
-            if(invalidPromoCode.Count > 0)
+            if (invalidPromoCode.Count > 0)
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                byte[] invalidPromoCodeBytes; 
+                byte[] invalidPromoCodeBytes;
                 using (var excelPackage = new ExcelPackage())
                 {
                     var workSheet = excelPackage.Workbook.Worksheets.Add("Invalid Vouchers");
@@ -182,5 +182,52 @@ namespace BankApplication.Web.Controllers
             var loggedInUser = await _UserManager.FindByIdAsync(loggedInUserId);
             return loggedInUser;
         }
+
+        [HttpPost("excel-download")]
+        public IActionResult DownloadExcelFile()
+        {
+            var list = new List<UserInfo>()
+                     {
+                         new UserInfo { UserName = "catcher", Age = 18 },
+                         new UserInfo { UserName = "james", Age = 20 },
+                     };
+            var stream = new MemoryStream();
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            //way 1:
+
+            //string excelName = $"UserList- {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+            //byte[] userListBytes;  
+            //using (var excelPackage = new ExcelPackage())
+            //{
+            //    var workSheet = excelPackage.Workbook.Worksheets.Add("Users Information");
+            //    var rowRange = workSheet.Cells["A1"].LoadFromCollection(list, true);
+            //    rowRange.AutoFitColumns();
+            //    userListBytes = excelPackage.GetAsByteArray();
+
+            //}
+            //return File(userListBytes, "application/octet-stream", excelName);
+
+            //way  2:
+            using (var package = new ExcelPackage(stream))
+            {
+                var worksheet = package.Workbook.Worksheets.Add("sheet1");
+                worksheet.Cells.LoadFromCollection(list, true);
+                package.Save();
+            }
+            stream.Position = 0;
+            string excelName = $"UserList- {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+            return File(stream, "application/octet-stream", excelName);
+            //return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+
+        }
+
+
     }
+}
+
+public class UserInfo
+{
+    public string UserName { get; set; }
+    public int Age { get; set; }
 }
