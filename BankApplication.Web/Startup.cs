@@ -2,9 +2,11 @@ using Bank.Application;
 using Bank.Application.Repository.Implementation;
 using Bank.Application.Repository.Interfaces;
 using Bank.Entity.Core;
+using Bank.Entity.MongoModels;
 using Bank.Service;
 using Bank.Service.Implementation;
 using Bank.Service.Interface;
+using Bank.Service.MongoServices;
 using Bank.Utilities.EmailConfig;
 using Bank.Utilities.EmailConfig.Models;
 using Bank.Utilities.GlobalErrorHandler;
@@ -18,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NLog;
@@ -55,8 +58,15 @@ namespace BankApplication.Web
             services.AddScoped<IServiceManager, ServiceManager>();
             services.AddScoped<IdentityServices>();
             services.AddSingleton<ILoggerManager, LoggerManager>();
+            //-----mongoDb connection String settings
+            services.Configure<SchoolDatabaseSettings>(Configuration.GetSection(nameof(SchoolDatabaseSettings)));
+            services.AddSingleton<ISchoolDatabaseSettings, SchoolDatabaseSettings>(provider =>
+            provider.GetRequiredService<IOptions<SchoolDatabaseSettings>>().Value);
+            //----- mongo service registration
+            services.AddScoped<StudentService>();
+            services.AddScoped<CourseService>();
 
-
+            // asp.net identity settings.
             services.AddIdentity<ApplicationUser, IdentityRole<long>>()
                 .AddEntityFrameworkStores<DatabaseContext>()
                 .AddDefaultTokenProviders();
