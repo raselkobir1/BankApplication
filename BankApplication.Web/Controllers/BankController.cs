@@ -208,17 +208,36 @@ namespace BankApplication.Web.Controllers
             //}
             //return File(userListBytes, "application/octet-stream", excelName);
 
-            //way  2:
-            using (var package = new ExcelPackage(stream))
+            ////way  2:
+            //using (var package = new ExcelPackage(stream))
+            //{
+            //    var worksheet = package.Workbook.Worksheets.Add("sheet1");
+            //    worksheet.Cells.LoadFromCollection(list, true);
+            //    package.Save();
+            //}
+            //stream.Position = 0;
+            //string excelName = $"UserList- {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+            //return File(stream, "application/octet-stream", excelName);
+            ////return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+
+            //way 3: trying
+            byte[] fileData = null;
+            using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("sheet1");
                 worksheet.Cells.LoadFromCollection(list, true);
-                package.Save();
+                //package.Save();
+
+                using (var ms = new MemoryStream())
+                {
+                    package.SaveAs(ms);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    fileData = ms.ToArray();
+                }
             }
-            stream.Position = 0;
             string excelName = $"UserList- {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
-            return File(stream, "application/octet-stream", excelName);
-            //return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+            return File(fileData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+
 
         }
 
