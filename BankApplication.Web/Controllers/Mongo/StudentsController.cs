@@ -12,9 +12,11 @@ namespace BankApplication.Web.Controllers.Mongo
     public class StudentsController : ControllerBase
     {
         private readonly StudentService _studentService;
-        public StudentsController(StudentService studentService)
+        private readonly CourseService _courseService;
+        public StudentsController(StudentService studentService, CourseService courseService)
         {
             _studentService = studentService;
+            _courseService = courseService;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Student>>> GetAll()
@@ -29,6 +31,19 @@ namespace BankApplication.Web.Controllers.Mongo
             if (student == null)
             {
                 return NotFound();
+            }
+            if(student.Courses.Count > 0)
+            {
+                var tempList = new List<Course>();
+                foreach (var courseId in student.Courses)
+                {
+                    var course = await _courseService.GetByIdAsync(courseId);
+                    if(course != null)
+                    {
+                        tempList.Add(course);   
+                    }
+                }
+                student.CourseList = tempList;
             }
             return Ok(student);
         }

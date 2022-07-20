@@ -16,5 +16,11 @@ namespace Bank.Entity.MongoModels
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Major { get; set; }
+
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> Courses { get; set; }
+
+        [BsonIgnore]
+        public List<Course> CourseList { get; set; }
     }
 }
